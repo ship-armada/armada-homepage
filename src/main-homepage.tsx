@@ -8,4 +8,4 @@ import { Homepage } from './pages/Homepage'
 
 initTheme()
 
-mountRoot(<Homepage />)
+mountRoot(<Homepage heroScrollExit />)
