@@ -1,0 +1,70 @@
+/*
+  Tokens used (verified in src/styles/tokens.css):
+  - Face fill: --cube-face-fill (brand-deep — wireframe look with strokes)
+  - Top: footer gem gradient (lavender → rose → amber)
+  - Mark: --semantic-color-brand-ink
+  EXCEPTION — cube stroke #5A4A62 on brand-deep panels; no matching token.
+  EXCEPTION — cube geometry / yaw animation from marketing ref.
+*/
+
+.root {
+  --cube-stroke: var(--diagram-stroke, #5a4a62);
+  --cube-face-fill: var(--semantic-color-brand-deep);
+
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.faceFill,
+.faceTop {
+  stroke: var(--cube-stroke);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.faceFill {
+  fill: var(--cube-face-fill);
+}
+
+.faceTop {
+  fill: url(#armadaCubeTop);
+}
+
+/* Gem stops via CSS so SVG inherits theme-overrides (attr stopColor + var() is flaky). */
+.gradStopLavender {
+  stop-color: var(--semantic-color-brand-lavender);
+}
+
+.gradStopRose {
+  stop-color: var(--semantic-color-brand-gradient-rose);
+}
+
+.gradStopAmber {
+  stop-color: var(--semantic-color-brand-amber);
+}
+
+.mark {
+  pointer-events: none;
+  fill: var(--semantic-color-brand-ink);
+}
+
+@media (max-width: 767px) {
+  .root {
+    position: relative;
+    inset: auto;
+    min-height: calc(var(--primitives-spacing-20) * 4);
+  }
+}

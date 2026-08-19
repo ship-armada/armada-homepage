@@ -1,0 +1,648 @@
+.section {
+  /* Shared with feature stack + intro fog so widths stay aligned. */
+  --section-stack-max: calc(
+    var(--primitives-spacing-20) * 18 + var(--primitives-spacing-16) - var(--primitives-spacing-1) /
+      2
+  );
+  --section-features-pad-x: var(--primitives-spacing-20);
+  /* Top of features band — also used as amber intro bottom pad. */
+  --section-features-pad-y: calc(var(--primitives-spacing-20) * 2);
+  /* EXCEPTION — Figma marketing page fill (white), not amber-100. Light surface-default is #ffffff. */
+  --section-page-bg: var(--semantic-color-surface-default);
+  /* EXCEPTION — Figma panel fill #f9f3ef (no matching token). */
+  --section-panel-bg: #f9f3ef;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--primitives-spacing-20);
+  padding:
+    calc(var(--primitives-spacing-20) + var(--primitives-spacing-16) + var(--primitives-spacing-3) / 2)
+    0
+    0;
+  background: var(--section-page-bg);
+  color: var(--semantic-color-text-primary);
+}
+.sectionIntroStack {
+  --gem-wash-base: var(--primitives-color-amber-100);
+  --gem-wash-start: color-mix(
+    in srgb,
+    var(--semantic-color-brand-lavender) 40%,
+    var(--gem-wash-base)
+  );
+  --gem-wash: linear-gradient(
+    180deg,
+    var(--gem-wash-start) 0%,
+    color-mix(
+        in srgb,
+        var(--semantic-color-brand-gradient-rose) 40%,
+        var(--gem-wash-base)
+      )
+      52%,
+    color-mix(in srgb, var(--semantic-color-brand-amber) 40%, var(--gem-wash-base)) 100%
+  );
+
+  padding-top: 0;
+  gap: 0;
+  align-items: stretch;
+  isolation: isolate;
+  /*
+    Viewport-locked wash — same paint as .introTextSticky. A gradient sized to
+    this tall section was already rose/peach when the sticky 100lvh lavender
+    sheet unstuck, which showed as a hard horizontal seam through the cards.
+  */
+  background-color: var(--gem-wash-start);
+  background-image: var(--gem-wash);
+  background-size: 100% 100lvh;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  padding: 0 0 var(--section-features-pad-y);
+  text-align: center;
+  scroll-margin-top: 0;
+  background: transparent;
+}
+.introUnderHero {
+  margin-top: var(--intro-under-hero-margin, calc(-100lvh - 140svh));
+  padding-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .introUnderHero {
+    margin-top: 0;
+  }
+
+  .introCopy {
+    opacity: 1 !important;
+  }
+
+  .introExitPin {
+    height: auto;
+    min-height: 0;
+  }
+
+  .introTextSticky {
+    position: relative;
+    min-height: 100svh;
+  }
+}
+
+.introText {
+  align-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--primitives-spacing-20);
+  text-align: center;
+  background: transparent;
+}
+.introExitPin {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  /* 100lvh + hero scrub + exit hold — see INTRO_EXIT_PIN_HEIGHT */
+  height: var(--intro-exit-pin-height, calc(100lvh + 204svh));
+  background: transparent;
+}
+.introTextSticky {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  height: 100lvh;
+  min-height: 100lvh;
+  /* Same viewport wash as .sectionIntroStack — opaque so sticky doesn’t punch to page white. */
+  background-color: var(--gem-wash-start, var(--primitives-color-amber-100));
+  background-image: var(--gem-wash);
+  background-size: 100% 100lvh;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+:global(html[data-privacy-copy='on']) .introTextSticky {
+  z-index: 5;
+}
+@supports (-webkit-touch-callout: none) {
+  .sectionIntroStack,
+  .introTextSticky {
+    background-attachment: scroll;
+    background-image: none;
+  }
+}
+
+.introCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /*
+    Opacity is set by the intro scroll scrub (hero fade-in × card fade-out).
+    Default 0 until that runs so copy never flashes at full strength.
+  */
+  opacity: 0;
+  will-change: opacity;
+}
+
+.introTitle {
+  margin: 0;
+  width: 100%;
+  max-width: calc(
+    var(--primitives-spacing-20) * 12 + var(--primitives-spacing-12) + var(--primitives-spacing-1) /
+      2
+  );
+  color: var(--semantic-color-text-primary);
+  text-align: center;
+  text-wrap: pretty;
+}
+@media (max-width: 767px) {
+  .intro {
+    gap: var(--primitives-spacing-10);
+  }
+
+  .introText {
+    min-height: 0;
+    padding: var(--primitives-spacing-16) var(--primitives-spacing-8) 0;
+  }
+}
+
+.introBody {
+  /* Leave margin-top undeclared so .armada-site-stack > * + * can apply title-to-body. */
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  width: 100%;
+  max-width: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-11));
+  color: var(--semantic-color-text-secondary);
+  text-wrap: pretty;
+}
+
+.titleLine {
+  display: block;
+}
+
+.ctaRowCenter,
+.ctaRowStart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitives-spacing-5);
+}
+
+.ctaRowCenter {
+  justify-content: center;
+}
+
+.ctaRowStart {
+  justify-content: flex-start;
+}
+
+.ghostCta.ghostCta {
+  background: transparent;
+  color: var(--semantic-color-text-primary);
+}
+
+.ghostCta.ghostCta:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--semantic-color-text-primary) 6%, transparent);
+  color: var(--semantic-color-text-primary);
+}
+
+.features {
+  /* Opaque tints (not transparent mixes) so split cards don’t pick up mud from amber. */
+  --features-lavender: color-mix(
+    in srgb,
+    var(--semantic-color-brand-lavender) 22%,
+    var(--primitives-color-amber-100)
+  );
+  --features-rose: color-mix(
+    in srgb,
+    var(--semantic-color-brand-gradient-rose) 22%,
+    var(--primitives-color-amber-100)
+  );
+  --features-amber: color-mix(
+    in srgb,
+    var(--semantic-color-brand-amber) 28%,
+    var(--primitives-color-amber-100)
+  );
+  --features-tone: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--section-features-pad-y) var(--section-features-pad-x);
+  background: linear-gradient(
+    180deg,
+    var(--features-lavender) 0%,
+    var(--features-rose) 52%,
+    var(--features-amber) 100%
+  );
+  color: var(--semantic-color-text-primary);
+}
+
+.sectionIntroStack .features {
+  background: none;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitives-spacing-20);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--section-stack-max);
+}
+.featuresScroll {
+  padding: 0;
+  background: none;
+}
+.featuresOverlapIntro {
+  position: relative;
+  z-index: 6;
+  margin-top: calc(-1 * var(--intro-card-overlap, 64svh));
+  background: none;
+}
+
+.cardViewport {
+  --card-view-pad: var(--primitives-spacing-20); /* 80px min */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  padding: var(--card-view-pad) var(--section-features-pad-x);
+}
+
+.cardViewport .stack {
+  width: 100%;
+  max-width: var(--section-stack-max);
+}
+
+.cardViewport .panel {
+  height: calc(100vh - var(--card-view-pad) * 2);
+  min-height: calc(100vh - var(--card-view-pad) * 2);
+  max-height: calc(100vh - var(--card-view-pad) * 2);
+  /* Solid cream shell — no alpha over the amber→gem section wash. */
+  isolation: isolate;
+  opacity: 1;
+  background-color: var(--section-panel-bg);
+  background-image: none;
+}
+
+.cardViewport .panelSplit {
+  height: min(calc(100vh - var(--card-view-pad) * 2), var(--panel-split-max-h));
+  min-height: 0;
+  max-height: var(--panel-split-max-h);
+}
+
+.cardViewport .panelSplit .panelDiagram {
+  /* Force opaque deep half (WebGL canvas is alpha; bg must not wash with amber). */
+  opacity: 1;
+  background-color: var(--semantic-color-brand-deep);
+  background-image: none;
+  isolation: isolate;
+}
+
+@media (min-width: 1200px) {
+  .cardViewport {
+    --card-view-pad: calc(var(--primitives-spacing-20) + var(--primitives-spacing-5)); /* 100px */
+  }
+
+  .featuresScroll {
+    --section-features-pad-x: calc(var(--primitives-spacing-20) + var(--primitives-spacing-5));
+  }
+}
+
+@media (min-width: 1536px) {
+  .cardViewport {
+    --card-view-pad: calc(var(--primitives-spacing-20) * 2); /* 160px */
+  }
+
+  .featuresScroll {
+    --section-features-pad-x: calc(var(--primitives-spacing-20) * 2);
+  }
+}
+
+.panel {
+  --panel-pad-x: calc(var(--primitives-spacing-20) + var(--primitives-spacing-10));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(var(--primitives-spacing-20) * 8 + var(--primitives-spacing-6) + var(--primitives-spacing-3) / 2);
+  min-height: calc(var(--primitives-spacing-20) * 8 + var(--primitives-spacing-6) + var(--primitives-spacing-3) / 2);
+  padding: 0;
+  border-radius: var(--primitives-spacing-5);
+  background: var(--section-panel-bg);
+  scroll-margin-top: 0;
+}
+.panel:not(.panelSplit) {
+  padding: 0 var(--panel-pad-x);
+}
+.panelSplit {
+  --panel-split-max-h: calc(
+    var(--primitives-spacing-20) * 7 + var(--primitives-spacing-10)
+  ); /* 600px */
+
+  display: grid;
+  /* minmax(0, …) so nowrap titles can’t inflate past a true 50/50. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  /* Cap below the default .panel ~700px height. */
+  height: var(--panel-split-max-h);
+  min-height: 0;
+  max-height: var(--panel-split-max-h);
+  /* EXCEPTION — diagram stroke on deep half (no matching token). */
+  --diagram-stroke: #5a4a62;
+}
+.panelSplitDeepLeft .panelDiagram {
+  order: -1;
+}
+
+.panelSplit .panelContent {
+  box-sizing: border-box;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 100%;
+  padding:
+    var(--primitives-spacing-12)
+    var(--panel-pad-x)
+    var(--primitives-spacing-12)
+    var(--panel-pad-x);
+  background: var(--section-panel-bg);
+}
+.panelSplit .panelTitle,
+.panelSplit .ctaRowStart {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.panelDiagram {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panelSplit .panelDiagram {
+  flex: none;
+  position: relative;
+  align-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--semantic-color-brand-deep);
+  /* Pass stroke/fill into diagram children. */
+  --privacy-sphere-stroke: var(--diagram-stroke);
+  --toggle-stroke: var(--diagram-stroke);
+  --cube-stroke: var(--diagram-stroke);
+  --cube-face-fill: var(--semantic-color-brand-deep);
+}
+
+.panelDiagramFill {
+  align-items: center;
+  justify-content: center;
+}
+
+.panelCrop {
+  overflow: hidden;
+}
+
+.panelDiagramCrop {
+  position: relative;
+}
+
+.panelContent {
+  flex: 0 1 auto;
+  align-items: flex-start;
+  max-width: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-10));
+  text-align: left;
+}
+
+.panelTitle {
+  margin: 0;
+  color: var(--semantic-color-text-primary);
+  text-align: left;
+}
+
+.panelBody {
+  /* Leave margin-top undeclared so .armada-site-stack > * + * can apply title-to-body. */
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  max-width: calc(var(--primitives-spacing-20) * 5 - var(--primitives-spacing-1) / 2);
+  color: var(--semantic-color-text-secondary);
+  text-wrap: pretty;
+}
+
+@media (min-width: 768px) {
+  .introTitle .titleLine,
+  .panelTitle .titleLine {
+    white-space: nowrap;
+  }
+
+  .panelSplit .panelTitle .titleLine {
+    white-space: normal;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1535px) {
+
+  .panel {
+    height: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-5));
+    min-height: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-5));
+    --panel-pad-x: calc(var(--primitives-spacing-16) + var(--primitives-spacing-4));
+  }
+
+  .panel:not(.panelSplit) {
+    padding: 0 var(--panel-pad-x);
+  }
+
+  .panelContent {
+    max-width: calc(var(--primitives-spacing-20) * 5);
+  }
+
+  .panelSplit {
+    padding: 0;
+    gap: 0;
+  }
+
+  .panelSplit .panelContent {
+    max-width: none;
+    padding-inline: var(--panel-pad-x);
+  }
+}
+@media (max-width: 1199px) {
+  .section {
+    gap: var(--primitives-spacing-16);
+    padding-top: var(--primitives-spacing-16);
+  }
+
+  .sectionIntroStack {
+    padding-top: 0;
+    gap: 0;
+  }
+
+  .intro {
+    --section-features-pad-x: var(--primitives-spacing-10);
+    --section-features-pad-y: var(--primitives-spacing-16);
+  }
+
+  .introText {
+    padding: var(--primitives-spacing-16) var(--primitives-spacing-10);
+  }
+
+  .features {
+    padding: var(--section-features-pad-y) var(--section-features-pad-x);
+    --section-features-pad-x: var(--primitives-spacing-10);
+    --section-features-pad-y: var(--primitives-spacing-16);
+  }
+
+  .stack {
+    gap: var(--primitives-spacing-12);
+  }
+
+  .panel {
+    --panel-pad-x: var(--primitives-spacing-10);
+    /* Match mid-desktop panel height so 50/50 splits fit tablet. */
+    height: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-5));
+    min-height: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-5));
+  }
+
+  .panel:not(.panelSplit) {
+    padding: 0 var(--panel-pad-x);
+  }
+
+  .panelContent {
+    max-width: none;
+  }
+}
+@media (max-width: 767px) {
+  .section {
+    gap: var(--primitives-spacing-8);
+    padding-top: var(--primitives-spacing-8);
+  }
+
+  .sectionIntroStack {
+    padding-top: 0;
+    gap: 0;
+  }
+
+  .intro {
+    gap: var(--primitives-spacing-10);
+    padding: 0 0 var(--section-features-pad-y);
+    --section-features-pad-x: var(--primitives-spacing-8);
+    --section-features-pad-y: var(--primitives-spacing-20);
+  }
+
+  .introText {
+    min-height: 0;
+    max-width: none;
+    padding: var(--primitives-spacing-16) var(--primitives-spacing-8) 0;
+  }
+
+  .introTitle {
+    width: 100%;
+    max-width: none;
+    text-wrap: pretty;
+  }
+
+  .introBody {
+    max-width: none;
+  }
+
+  .features {
+    /* Side inset matches panel content bottom padding (spacing-8). */
+    padding: var(--section-features-pad-y) var(--section-features-pad-x);
+    --section-features-pad-x: var(--primitives-spacing-8);
+    --section-features-pad-y: var(--primitives-spacing-20);
+  }
+
+  .stack {
+    gap: var(--primitives-spacing-8);
+  }
+
+  .panel {
+    height: auto;
+    min-height: 0;
+    /* Match side inset to top/bottom (spacing-8). */
+    --panel-pad-x: var(--primitives-spacing-8);
+    border-radius: var(--primitives-spacing-4);
+  }
+
+  .panel:not(.panelSplit) {
+    padding: var(--primitives-spacing-8) var(--panel-pad-x);
+  }
+
+  .panelSplit {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .panelSplit .panelContent {
+    /* Hug copy; diagram owns the square frame above. */
+    flex: 0 0 auto;
+    height: auto;
+    max-width: none;
+    padding: var(--primitives-spacing-8) var(--panel-pad-x);
+  }
+
+  .panelSplit .panelDiagram {
+    order: -1;
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+    align-self: stretch;
+  }
+
+  .panelDiagram {
+    width: 100%;
+  }
+
+  .panelDiagramCrop {
+    width: 100%;
+  }
+
+  .panelContent {
+    max-width: none;
+  }
+
+  .titleLine {
+    white-space: normal;
+  }
+
+  .ctaRowCenter,
+  .ctaRowStart {
+    gap: var(--primitives-spacing-3);
+  }
+}
