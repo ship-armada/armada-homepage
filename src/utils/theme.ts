@@ -38,8 +38,8 @@ function themeFromQuery(): Theme | null {
   }
 }
 
-/** Apply theme to the document and persist an explicit user choice. */
-export function setTheme(theme: Theme, options?: { animate?: boolean }): void {
+/** Paint `data-theme` without writing localStorage (marketing pages stay light). */
+export function applyDocumentTheme(theme: Theme, options?: { animate?: boolean }): void {
   const root = document.documentElement
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const current = root.getAttribute('data-theme')
@@ -53,11 +53,6 @@ export function setTheme(theme: Theme, options?: { animate?: boolean }): void {
   }
 
   root.setAttribute('data-theme', theme)
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme)
-  } catch {
-    // ignore quota / private mode
-  }
   window.dispatchEvent(new CustomEvent('theme-change'))
 
   if (shouldAnimate) {
@@ -67,6 +62,21 @@ export function setTheme(theme: Theme, options?: { animate?: boolean }): void {
   }
 }
 
+/** Apply theme to the document and persist an explicit user choice. */
+export function setTheme(theme: Theme, options?: { animate?: boolean }): void {
+  applyDocumentTheme(theme, options)
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
 export function initTheme(): void {
   setTheme(themeFromQuery() ?? getSavedTheme() ?? DEFAULT_THEME, { animate: false })
+}
+
+/** Homepage / intro: always light. Does not change the saved app theme. */
+export function initFixedLightTheme(): void {
+  applyDocumentTheme('light', { animate: false })
 }
