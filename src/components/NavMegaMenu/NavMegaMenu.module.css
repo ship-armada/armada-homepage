@@ -39,7 +39,11 @@
 }
 
 .item:hover {
-  background: var(--semantic-color-surface-hover);
+  background: var(--primitives-color-purple-50);
+}
+
+.item:hover .iconWrap {
+  background: var(--semantic-color-surface-default);
 }
 
 .item:focus-visible {
@@ -55,9 +59,10 @@
   width: var(--primitives-spacing-10);
   height: var(--primitives-spacing-10);
   border-radius: calc(var(--primitives-borderRadius-lg) * 1px);
-  background: var(--semantic-color-surface-raised);
-  border: 1px solid var(--semantic-color-border-default);
+  background: var(--primitives-color-purple-50);
+  border: none;
   color: var(--semantic-color-brand-action);
+  transition: background 150ms ease;
 }
 
 .icon {

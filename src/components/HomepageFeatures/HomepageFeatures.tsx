@@ -13,6 +13,7 @@ import {
   smoothstep,
 } from '@/constants/homepageHandoff'
 import { useDesktopHandoff } from '@/hooks/useDesktopHandoff'
+import { openAppWithWallet } from '@/utils/appNavigation'
 import { ComplianceToggleStack } from './ComplianceToggleStack'
 import { FoundationsCubeGrid } from './FoundationsCubeGrid'
 import { BeyondCaptureGuard } from './BeyondCaptureGuard'
@@ -24,8 +25,10 @@ const PrivacySphereViz = lazy(() =>
 
 type Cta = {
   label: string
-  href: string
+  href?: string
   external?: boolean
+  /** Opens the demo app dashboard (same as header Open app). */
+  openApp?: boolean
   variant: Extract<ButtonVariant, 'primary' | 'secondary' | 'ghost'>
 }
 
@@ -44,7 +47,7 @@ const INTRO = {
   ctas: [
     {
       label: 'Start building',
-      href: 'https://docs.armada.blue',
+      href: 'https://docs.armada.blue/guide/getting-started',
       external: true,
       variant: 'primary' as const,
     },
@@ -60,8 +63,7 @@ const FEATURES: Block[] = [
     ctas: [
       {
         label: 'Try Armada',
-        href: 'https://docs.armada.blue',
-        external: true,
+        openApp: true,
         variant: 'primary',
       },
     ],
@@ -74,7 +76,7 @@ const FEATURES: Block[] = [
     ctas: [
       {
         label: 'Review docs',
-        href: 'https://docs.armada.blue',
+        href: 'https://docs.armada.blue/',
         external: true,
         variant: 'primary',
       },
@@ -88,7 +90,7 @@ const FEATURES: Block[] = [
     ctas: [
       {
         label: 'Explore protocol',
-        href: 'https://docs.armada.blue',
+        href: 'https://docs.armada.blue/',
         external: true,
         variant: 'primary',
       },
@@ -119,9 +121,12 @@ function CtaRow({ ctas, align }: { ctas: Cta[]; align: 'center' | 'start' }) {
           size="lg"
           label={cta.label}
           showIcon={false}
-          href={cta.href}
+          href={cta.openApp ? undefined : cta.href}
+          onClick={cta.openApp ? openAppWithWallet : undefined}
           className={cta.variant === 'ghost' ? styles.ghostCta : undefined}
-          {...(cta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          {...(cta.external && !cta.openApp
+            ? { target: '_blank', rel: 'noopener noreferrer' }
+            : {})}
         />
       ))}
     </div>
