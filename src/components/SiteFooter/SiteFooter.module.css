@@ -173,7 +173,7 @@
       'logo social'
       'nav nav';
     gap: var(--primitives-spacing-12) var(--primitives-spacing-4);
-    padding: 0 var(--primitives-spacing-8);
+    padding: 0 var(--primitives-spacing-3);
   }
 
   .logoLink {

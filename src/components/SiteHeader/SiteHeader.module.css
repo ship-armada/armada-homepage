@@ -224,9 +224,21 @@
   justify-content: center;
   width: var(--primitives-spacing-11);
   height: var(--primitives-spacing-11);
-  margin-left: auto;
+  margin-left: 0;
   border-radius: calc(var(--primitives-borderRadius-md) * 1px);
   color: var(--primitives-color-neutral-50);
+}
+
+/* Mobile: App CTA + burger clustered on the right. */
+.mobileActions {
+  display: flex;
+  align-items: center;
+  gap: var(--primitives-spacing-2);
+  margin-left: auto;
+}
+
+.mobileAppCta.mobileAppCta {
+  display: inline-flex;
 }
 
 .headerScrolled .burger {
@@ -370,10 +382,6 @@
   outline-offset: 2px;
 }
 
-.mobileCta {
-  width: 100%;
-}
-
 @media (min-width: 1024px) {
   .desktopNav {
     display: flex;
@@ -381,6 +389,14 @@
 
   .actions {
     display: flex;
+  }
+
+  .mobileAppCta.mobileAppCta {
+    display: none;
+  }
+
+  .mobileActions {
+    display: none;
   }
 
   .burger {

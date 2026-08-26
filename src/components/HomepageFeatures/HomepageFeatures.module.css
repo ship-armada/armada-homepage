@@ -170,7 +170,7 @@
 
   .introText {
     min-height: 100svh;
-    padding: var(--primitives-spacing-16) var(--primitives-spacing-8);
+    padding: var(--primitives-spacing-16) var(--primitives-spacing-3);
   }
 }
 
@@ -596,14 +596,14 @@
   .intro {
     gap: 0;
     padding: 0;
-    --section-features-pad-x: var(--primitives-spacing-8);
+    --section-features-pad-x: var(--primitives-spacing-3);
     --section-features-pad-y: var(--primitives-spacing-20);
   }
 
   .introText {
     min-height: 100svh;
     max-width: none;
-    padding: var(--primitives-spacing-16) var(--primitives-spacing-8);
+    padding: var(--primitives-spacing-16) var(--primitives-spacing-3);
   }
 
   .introTitle {
@@ -617,9 +617,9 @@
   }
 
   .features {
-    /* Side inset matches panel content bottom padding (spacing-8). */
+    /* Outer page inset 12px on mobile; card interior padding stays denser. */
     padding: var(--section-features-pad-y) var(--section-features-pad-x);
-    --section-features-pad-x: var(--primitives-spacing-8);
+    --section-features-pad-x: var(--primitives-spacing-3);
     --section-features-pad-y: var(--primitives-spacing-20);
   }
 

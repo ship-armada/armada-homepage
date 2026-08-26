@@ -91,8 +91,8 @@ export function SiteHeader() {
       const goingDown = y > lastY.current + SCROLL_DELTA
       const goingUp = y < lastY.current
 
-      if (mobileMounted || openMenuId) {
-        // Keep chrome available while menus are open
+      if (openMenuId) {
+        // Keep chrome available while desktop mega-menus are open
         setFloating(!nearTop)
         upTravel.current = 0
       } else if (nearTop) {
@@ -115,13 +115,13 @@ export function SiteHeader() {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [mobileMounted, openMenuId])
+  }, [openMenuId])
 
   useEffect(() => {
-    if ((mobileMounted || openMenuId) && window.scrollY > SCROLL_THRESHOLD) {
+    if (openMenuId && window.scrollY > SCROLL_THRESHOLD) {
       setFloating(true)
     }
-  }, [mobileMounted, openMenuId])
+  }, [openMenuId])
 
   useEffect(() => {
     if (!mobileOpen) {
@@ -228,9 +228,9 @@ export function SiteHeader() {
     burgerRef.current?.focus()
   }
 
-  // Fixed solid bar only when floating (scroll-up) or mobile menu needs it.
-  // Otherwise stay absolute so nothing flashes in when the hero header leaves.
-  const showSolid = floating || mobileMounted
+  // Fixed solid bar only when floating (scroll-up). Mobile drawer sits under
+  // the header and slides in without flipping the bar to solid/black chrome.
+  const showSolid = floating
   const [slideIn, setSlideIn] = useState(false)
 
   useEffect(() => {
@@ -252,7 +252,6 @@ export function SiteHeader() {
     showSolid && styles.headerDocked,
     showSolid && styles.headerScrolled,
     showSolid && slideIn && styles.headerSlideIn,
-    mobileMounted && styles.headerMenuOpen,
   ]
     .filter(Boolean)
     .join(' ')
@@ -262,7 +261,7 @@ export function SiteHeader() {
       <header className={headerClass}>
         <div className={styles.inner}>
           <a href="/" className={styles.logoLink} aria-label="Armada home">
-            {showSolid && !mobileMounted ? (
+            {showSolid ? (
               <ArmadaLogo variant="full" className={styles.logo} />
             ) : (
               <img
@@ -368,21 +367,32 @@ export function SiteHeader() {
             />
           </div>
 
-          <button
-            ref={burgerRef}
-            type="button"
-            className={styles.burger}
-            aria-expanded={mobileOpen}
-            aria-controls={mobileMenuId}
-            aria-label={mobileMounted ? 'Close menu' : 'Open menu'}
-            onClick={() => setMobileOpen((open) => !open)}
-          >
-            {mobileMounted ? (
-              <XMarkIcon width={20} height={20} aria-hidden />
-            ) : (
-              <Bars3Icon width={20} height={20} aria-hidden />
-            )}
-          </button>
+          <div className={styles.mobileActions}>
+            <Button
+              variant="primary"
+              size="md"
+              label="Open app"
+              showIcon={false}
+              onClick={openAppWithWallet}
+              className={`${styles.appCta} ${styles.mobileAppCta}`}
+            />
+
+            <button
+              ref={burgerRef}
+              type="button"
+              className={styles.burger}
+              aria-expanded={mobileOpen}
+              aria-controls={mobileMenuId}
+              aria-label={mobileMounted ? 'Close menu' : 'Open menu'}
+              onClick={() => setMobileOpen((open) => !open)}
+            >
+              {mobileMounted ? (
+                <XMarkIcon width={20} height={20} aria-hidden />
+              ) : (
+                <Bars3Icon width={20} height={20} aria-hidden />
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -431,18 +441,6 @@ export function SiteHeader() {
                 </li>
               ))}
             </ul>
-            <Button
-              variant="primary"
-              size="lg"
-              label="Armada App"
-              showIcon
-              icon="arrow-right-micro"
-              onClick={() => {
-                closeMobile()
-                openAppWithWallet()
-              }}
-              className={styles.mobileCta}
-            />
           </div>
         </div>
       ) : null}
