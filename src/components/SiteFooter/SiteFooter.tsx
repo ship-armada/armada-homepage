@@ -56,7 +56,13 @@ export function SiteFooter() {
         <ul className={styles.socialList} aria-label="Social links">
           {SOCIAL_LINKS.map((social, index) => (
             <li key={social.label} data-cascade="" style={cascadeStyle(socialStart + index)}>
-              <a className={styles.socialLink} href={social.href} aria-label={social.label}>
+              <a
+                className={styles.socialLink}
+                href={social.href}
+                aria-label={social.label}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <SocialIcon name={social.icon} />
               </a>
             </li>

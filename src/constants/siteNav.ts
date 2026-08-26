@@ -44,9 +44,9 @@ export type SocialLink = {
 
 /** Shared header + footer social icons. */
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: 'Discord', href: '#discord', icon: 'discord' },
-  { label: 'X', href: '#x', icon: 'x' },
-  { label: 'GitHub', href: '#github', icon: 'github' },
+  { label: 'Discord', href: 'https://discord.gg/eyD58prEV', icon: 'discord' },
+  { label: 'X', href: 'https://x.com/ship_armada', icon: 'x' },
+  { label: 'GitHub', href: 'https://github.com/ship-armada', icon: 'github' },
 ]
 
 /**
@@ -81,17 +81,20 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'developers',
     label: 'Developers',
-    href: '#developers',
+    href: 'https://docs.armada.blue/',
+    external: true,
   },
   {
     id: 'security',
     label: 'Security',
-    href: '#security',
+    href: 'https://docs.armada.blue/guide/security',
+    external: true,
   },
   {
     id: 'protocol',
     label: 'Protocol',
-    href: '#protocol',
+    href: 'https://docs.armada.blue/',
+    external: true,
   },
   {
     id: 'resources',
@@ -108,7 +111,8 @@ export const NAV_ITEMS: NavItem[] = [
         id: 'github',
         title: 'GitHub',
         description: 'Source code and open repositories',
-        href: '#github',
+        href: 'https://github.com/ship-armada',
+        external: true,
         icon: GitHubIcon,
       },
     ],

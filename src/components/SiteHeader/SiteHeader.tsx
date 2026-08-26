@@ -350,7 +350,13 @@ export function SiteHeader() {
             <ul className={styles.socialList} aria-label="Social links">
               {SOCIAL_LINKS.map((social) => (
                 <li key={social.label}>
-                  <a className={styles.socialLink} href={social.href} aria-label={social.label}>
+                  <a
+                    className={styles.socialLink}
+                    href={social.href}
+                    aria-label={social.label}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <SocialIcon name={social.icon} />
                   </a>
                 </li>
@@ -435,6 +441,8 @@ export function SiteHeader() {
                     href={social.href}
                     aria-label={social.label}
                     onClick={closeMobile}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <SocialIcon name={social.icon} />
                   </a>
