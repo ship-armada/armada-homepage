@@ -81,7 +81,7 @@
 .navList {
   display: flex;
   align-items: center;
-  gap: var(--primitives-spacing-2);
+  gap: var(--primitives-spacing-4);
   list-style: none;
   margin: 0;
   padding: 0;

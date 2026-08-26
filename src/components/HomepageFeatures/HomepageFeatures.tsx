@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 
 import { Button } from '@/components/Button'
 import type { ButtonVariant } from '@/components/Button'
 import { RevealStack } from '@/components/ScrollReveal'
+import { Tag } from '@/components/Tag'
 import {
   COPY_EXIT_CARD,
   INTRO_CARD_OVERLAP,
@@ -30,6 +31,7 @@ type Cta = {
 
 type Block = {
   id: string
+  tag: string
   title: readonly [string] | readonly [string, string]
   body: string
   ctas: Cta[]
@@ -41,7 +43,7 @@ const INTRO = {
   body: 'Add shielded USDC to your product.',
   ctas: [
     {
-      label: 'Integrate and test',
+      label: 'Start building',
       href: 'https://docs.armada.blue',
       external: true,
       variant: 'primary' as const,
@@ -52,11 +54,12 @@ const INTRO = {
 const FEATURES: Block[] = [
   {
     id: 'capital-in-motion',
+    tag: 'Shield',
     title: ['Protecting capital', 'in motion'],
     body: 'Shield your relationships while continuing to operate with USDC.',
     ctas: [
       {
-        label: 'Integrate and test',
+        label: 'Try Armada',
         href: 'https://docs.armada.blue',
         external: true,
         variant: 'primary',
@@ -65,11 +68,12 @@ const FEATURES: Block[] = [
   },
   {
     id: 'compliance',
-    title: ['Compliance without', 'intermediaries'],
-    body: 'Only you give authorized parties access to the records they need.',
+    tag: 'Compliance',
+    title: ['Selective disclosure', 'without gatekeepers'],
+    body: 'No surprises. Only you give authorized parties access to the records they need.',
     ctas: [
       {
-        label: 'Integrate and test',
+        label: 'Review docs',
         href: 'https://docs.armada.blue',
         external: true,
         variant: 'primary',
@@ -78,11 +82,12 @@ const FEATURES: Block[] = [
   },
   {
     id: 'beyond-capture',
+    tag: 'Protocol',
     title: ['Beyond capture'] as const,
     body: "Like Ethereum, Armada's shielded pool is neutral infrastructure: no company or governing entity can take control of it.",
     ctas: [
       {
-        label: 'Integrate and test',
+        label: 'Explore protocol',
         href: 'https://docs.armada.blue',
         external: true,
         variant: 'primary',
@@ -91,18 +96,14 @@ const FEATURES: Block[] = [
   },
   {
     id: 'foundations',
+    tag: 'Architecture',
     title: ['Built on battle-tested', 'foundations'],
-    body: 'Armada builds on established decentralized architecture and cryptographic primitives refined through years of real-world use, adversarial pressure, and continuous iteration.',
+    body: 'Armada uses established cryptographic primitives and deliberately simple decentralized architecture, purpose-built for shielded USDC',
     ctas: [
       {
-        label: 'Explore the architecture',
+        label: 'Explore architecture',
         href: '#architecture',
         variant: 'primary',
-      },
-      {
-        label: 'Review security',
-        href: '#security',
-        variant: 'ghost',
       },
     ],
   },
@@ -267,19 +268,24 @@ function FeatureCopy({
   bodyClassName?: string
 }) {
   return (
-    <RevealStack className={`armada-site-stack ${contentClassName}`}>
-      <h2
-        id={headingId}
-        className={`armada-text-title ${titleClassName ?? styles.panelTitle}`}
-      >
-        {block.title.map((line) => (
-          <span key={line} className={styles.titleLine}>
-            {line}
-          </span>
-        ))}
-      </h2>
-      <p className={`armada-text-body ${bodyClassName ?? styles.panelBody}`}>{block.body}</p>
-      <CtaRow ctas={block.ctas} align="start" />
+    <RevealStack className={contentClassName}>
+      <div className={styles.panelCopyTop}>
+        <Tag label={block.tag} className={styles.panelTag} />
+        <h2
+          id={headingId}
+          className={`armada-text-title ${titleClassName ?? styles.panelTitle}`}
+        >
+          {block.title.map((line) => (
+            <span key={line} className={styles.titleLine}>
+              {line}
+            </span>
+          ))}
+        </h2>
+      </div>
+      <div className={styles.panelCopyBottom}>
+        <p className={`armada-text-body ${bodyClassName ?? styles.panelBody}`}>{block.body}</p>
+        <CtaRow ctas={block.ctas} align="start" />
+      </div>
     </RevealStack>
   )
 }

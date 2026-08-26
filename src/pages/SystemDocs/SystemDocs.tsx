@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import tokensCss from '@/styles/tokens.css?raw'
 import overridesCss from '@/styles/theme-overrides.css?raw'
+import { Button } from '@/components/Button'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/hooks/useTheme'
 import { TYPOGRAPHY_VARIANTS, typographyClassName } from '@/typography/variants'
@@ -10,12 +11,11 @@ import {
   colorScaleOf,
   isHardcodedValue,
   parseDeclsForTheme,
-  semanticRoleOf,
 } from './parseCssVars'
 import styles from './SystemDocs.module.css'
 
 const MISSING_DS =
-  'not documented yet — ARMADA_DESIGN_SYSTEM.md is not in this repo; .cursor/rules/armada-project.mdc is not in this repo.'
+  'This repo has no ARMADA_DESIGN_SYSTEM.md yet. Do not invent extra rules.'
 
 const APP_RULES = [
   'Verify token names in src/styles/tokens.css before writing or editing UI.',
@@ -40,11 +40,11 @@ const NAV = [
   { href: '#components', label: 'Components' },
   { href: '#motion', label: 'Motion' },
   { href: '#examples', label: 'Live examples' },
-  { href: '#rules', label: 'Rules reference' },
+  { href: '#rules', label: 'Rules' },
   { href: '#agent', label: 'Agent guide' },
 ] as const
 
-const PLAYGROUNDS = new Set([
+const PLAYGROUND_ORDER = [
   'Button',
   'IconButton',
   'Tag',
@@ -54,7 +54,30 @@ const PLAYGROUNDS = new Set([
   'TokenBadge',
   'Tooltip',
   'BalanceActionButton',
-])
+  'TextField',
+  'TextArea',
+  'ConfirmedScreenLayout',
+] as const
+
+const FEATURED_SEMANTIC = [
+  '--semantic-color-surface-bg',
+  '--semantic-color-surface-default',
+  '--semantic-color-surface-raised',
+  '--semantic-color-text-primary',
+  '--semantic-color-text-secondary',
+  '--semantic-color-text-muted',
+  '--semantic-color-border-default',
+  '--semantic-color-border-focus',
+  '--semantic-color-brand-lavender',
+  '--semantic-color-brand-amber',
+  '--semantic-color-brand-action',
+  '--semantic-color-brand-ink',
+  '--semantic-color-status-success',
+  '--semantic-color-status-warning',
+  '--semantic-color-status-error',
+  '--semantic-color-frost',
+  '--semantic-color-frost-raised',
+] as const
 
 const componentIndexFiles = import.meta.glob('../../components/*/index.ts', { eager: true })
 
@@ -63,6 +86,15 @@ function componentFolders(): string[] {
     .map((path) => path.match(/components\/([^/]+)\/index\.ts$/)?.[1])
     .filter((name): name is string => Boolean(name))
     .sort((a, b) => a.localeCompare(b))
+}
+
+function sortScale(names: string[]): string[] {
+  return [...names].sort((a, b) => {
+    const na = Number(a.replace(/[^\d]/g, ''))
+    const nb = Number(b.replace(/[^\d]/g, ''))
+    if (!Number.isNaN(na) && !Number.isNaN(nb) && na !== nb) return na - nb
+    return a.localeCompare(b)
+  })
 }
 
 function useResolved(name: string, kind: 'color' | 'width' | 'font' | 'radius'): string {
@@ -92,17 +124,19 @@ function useResolved(name: string, kind: 'color' | 'width' | 'font' | 'radius'):
 
 function ColorSwatch({ name, declared }: { name: string; declared: string }) {
   const resolved = useResolved(name, 'color')
-  const hardcoded = isHardcodedValue(declared)
+  const aliased = declared.includes('var(')
   return (
-    <div className={styles.swatch}>
+    <button
+      type="button"
+      className={styles.swatch}
+      onClick={() => void navigator.clipboard.writeText(`var(${name})`)}
+      aria-label={`Copy var(${name})`}
+    >
       <div className={styles.chip} style={{ background: `var(${name})` }} />
-      <code className={styles.meta}>{name}</code>
-      <span className={styles.meta}>{declared}</span>
+      <span className={styles.swatchName}>{name.replace('--semantic-color-', '').replace('--primitives-color-', '')}</span>
       <span className={styles.meta}>{resolved}</span>
-      {hardcoded ? (
-        <span className={`${styles.meta} ${styles.flag}`}>declared value is not a var() alias</span>
-      ) : null}
-    </div>
+      {aliased ? <span className={styles.alias}>{declared}</span> : null}
+    </button>
   )
 }
 
@@ -136,8 +170,15 @@ export function SystemDocs() {
     .filter(([name]) => name.startsWith('--semantic-color-'))
     .map(([name, declared]) => ({ name, declared }))
 
-  const fontSizes = [...decls.keys()].filter((name) => name.startsWith('--primitives-fontSize-')).sort()
-  const spacings = [...decls.keys()].filter((name) => name.startsWith('--primitives-spacing-'))
+  const featured = FEATURED_SEMANTIC.filter((name) => decls.has(name)).map((name) => ({
+    name,
+    declared: decls.get(name) ?? '',
+  }))
+
+  const hardcodedSemantic = semanticColors.filter((item) => isHardcodedValue(item.declared))
+
+  const fontSizes = sortScale([...decls.keys()].filter((name) => name.startsWith('--primitives-fontSize-')))
+  const spacings = sortScale([...decls.keys()].filter((name) => name.startsWith('--primitives-spacing-')))
   const radii = [...decls.keys()].filter((name) => name.includes('borderRadius'))
   const borders = [
     '--semantic-color-border-default',
@@ -147,7 +188,11 @@ export function SystemDocs() {
   ].filter((name) => decls.has(name))
 
   const q = query.trim().toLowerCase()
-  const folders = componentFolders().filter((name) => !q || name.toLowerCase().includes(q))
+  const folders = componentFolders()
+  const playgrounds = PLAYGROUND_ORDER.filter((name) => folders.includes(name) && (!q || name.toLowerCase().includes(q)))
+  const catalogRest = folders.filter(
+    (name) => !PLAYGROUND_ORDER.includes(name as (typeof PLAYGROUND_ORDER)[number]) && (!q || name.toLowerCase().includes(q)),
+  )
   const rules = APP_RULES.filter((rule) => !q || rule.toLowerCase().includes(q))
 
   useEffect(() => {
@@ -155,7 +200,9 @@ export function SystemDocs() {
     const nodes = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[]
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
         if (visible[0]?.target.id) setActive(visible[0].target.id)
       },
       { rootMargin: '0px 0px -70% 0px', threshold: [0, 0.25, 0.5] },
@@ -172,7 +219,7 @@ export function SystemDocs() {
 );`
 
   const agentText = `AGENT GUIDE — Armada App
-Source: .cursor/rules/armada-app.mdc (verbatim). ARMADA_DESIGN_SYSTEM.md and armada-project.mdc: not in this repo.
+Source: .cursor/rules/armada-app.mdc
 
 TOKEN DISCIPLINE
 - Verify token names in src/styles/tokens.css before writing or editing UI.
@@ -190,10 +237,10 @@ RIGHT
   font-size: calc(var(--primitives-fontSize-md) * 1px);
 }
 
-Token names can differ from what you guess. Check tokens.css before writing any var() reference.
+Check tokens.css before writing any var() reference.
 
 CURSOR PROMPTS
-Put CRITICAL constraints at the top of the prompt. Name token vars explicitly. Include: check tokens.css before writing any var() reference.
+Put CRITICAL constraints at the top. Name token vars explicitly.
 
 Example:
 CRITICAL: never hardcode hex/px/font-size. Use var(--semantic-color-surface-default) and var(--primitives-spacing-5). Check src/styles/tokens.css before any var().
@@ -203,20 +250,20 @@ BUILD
 - npm run build → npm run tokens:typography && tsc && vite build
 - npm run dev does not run tsc.
 
-New HTML entry checklist:
+New HTML entry:
 [ ] *.html
 [ ] main-*.tsx
 [ ] vite.config.ts rollupOptions.input
-[ ] vercel.json route if the URL is not the html filename
+[ ] vercel.json route if needed
 
 COMPONENT REUSE
-Before building anything, check #components on this page (folder list from src/components/).
+Before building anything, scan #components on this page.
 
 FIGMA MCP
 not documented yet
 
-DEFERRED REFACTOR / WALLET SEAM
-not documented yet in ARMADA_DESIGN_SYSTEM.md or armada-project.mdc
+WALLET SEAM
+not documented yet in this repo’s design-system files
 `
 
   return (
@@ -225,7 +272,7 @@ not documented yet in ARMADA_DESIGN_SYSTEM.md or armada-project.mdc
         Skip to content
       </a>
       <header className={styles.topBar}>
-        <h1 className={styles.topTitle}>System docs</h1>
+        <h1 className={styles.topTitle}>System</h1>
         <label className={styles.meta} htmlFor="docs-search">
           Filter
         </label>
@@ -235,7 +282,7 @@ not documented yet in ARMADA_DESIGN_SYSTEM.md or armada-project.mdc
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Filter components and rules"
+          placeholder="Components and rules"
         />
         <ThemeToggle />
       </header>
@@ -257,51 +304,74 @@ not documented yet in ARMADA_DESIGN_SYSTEM.md or armada-project.mdc
           </ul>
         </nav>
         <main id="content" className={styles.content}>
-          <p className={styles.note}>
-            Documentation site only. Values below are <code>var(--token)</code> plus computed
-            styles from the live cascade (tokens.css + theme-overrides.css). {MISSING_DS}
-          </p>
-
           <section id="foundations">
-            <h2 className={styles.sectionTitle}>Foundations</h2>
+            <h2 className={styles.sectionTitle}>How to use this page</h2>
+            <p className={styles.lead}>
+              This is a catalog of tokens and components that already exist in the app. Prefer{' '}
+              <code>--semantic-*</code> names. Click a color to copy <code>var(--token)</code>. Switch
+              light and dark from the header — every specimen follows <code>data-theme</code>.
+            </p>
+            <p className={styles.note}>{MISSING_DS}</p>
           </section>
 
           <section id="color">
-            <h3 className={styles.subTitle}>Primitive color</h3>
-            {groupBy(primitiveColors, (item) => colorScaleOf(item.name) ?? 'other').map(([scale, items]) => (
-              <div key={scale}>
-                <h4 className={styles.meta}>{scale}</h4>
-                <div className={styles.grid}>
-                  {items.map((item) => (
-                    <ColorSwatch key={item.name} name={item.name} declared={item.declared} />
-                  ))}
+            <h2 className={styles.sectionTitle}>Color</h2>
+            <p className={styles.lead}>
+              Paint UI with semantic roles (surface, text, border, brand, status, frost). Primitive
+              scales are the raw palette — use them only when no semantic token exists. Click a
+              swatch to copy the CSS variable.
+            </p>
+            <h3 className={styles.subTitle}>Start here</h3>
+            <div className={styles.grid}>
+              {featured.map((item) => (
+                <ColorSwatch key={item.name} name={item.name} declared={item.declared} />
+              ))}
+            </div>
+            {hardcodedSemantic.length > 0 ? (
+              <p className={styles.note}>
+                Some semantic colors are written as raw values instead of <code>var(--primitives-…)</code>
+                (ink, some status and overlay tokens). Prefer aliases when you add new ones. Click a
+                swatch for the live computed color.
+              </p>
+            ) : null}
+
+            <details className={styles.fold}>
+              <summary>Full primitive scales</summary>
+              {groupBy(primitiveColors, (item) => colorScaleOf(item.name) ?? 'other').map(([scale, items]) => (
+                <div key={scale}>
+                  <h4 className={styles.subTitle}>{scale}</h4>
+                  <div className={styles.grid}>
+                    {items.map((item) => (
+                      <ColorSwatch key={item.name} name={item.name} declared={item.declared} />
+                    ))}
+                  </div>
                 </div>
+              ))}
+            </details>
+
+            <details className={styles.fold}>
+              <summary>All semantic color tokens</summary>
+              <div className={styles.grid}>
+                {semanticColors.map((item) => (
+                  <ColorSwatch key={item.name} name={item.name} declared={item.declared} />
+                ))}
               </div>
-            ))}
-            <h3 className={styles.subTitle}>Semantic color</h3>
-            {groupBy(semanticColors, (item) => semanticRoleOf(item.name) ?? 'other').map(([role, items]) => (
-              <div key={role}>
-                <h4 className={styles.meta}>{role}</h4>
-                <div className={styles.grid}>
-                  {items.map((item) => (
-                    <ColorSwatch key={item.name} name={item.name} declared={item.declared} />
-                  ))}
-                </div>
-              </div>
-            ))}
+            </details>
           </section>
 
           <section id="typography">
-            <h3 className={styles.subTitle}>Typography</h3>
-            <p className={styles.note}>
-              Font role table from ARMADA_DESIGN_SYSTEM.md section 5: {MISSING_DS} Specimens use
-              generated <code>.armada-text-*</code> classes from this repo.
+            <h2 className={styles.sectionTitle}>Typography</h2>
+            <p className={styles.lead}>
+              Page chrome on this site uses Geist. Charis SIL only appears in display composites
+              below. Use <code>.armada-text-*</code> or the matching CSS variables. A written font
+              pairing table is {MISSING_DS.toLowerCase()}
             </p>
+            <h3 className={styles.subTitle}>Size scale</h3>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Token</th>
-                  <th>Computed size</th>
+                  <th>Computed</th>
                   <th>Specimen</th>
                 </tr>
               </thead>
@@ -311,24 +381,30 @@ not documented yet in ARMADA_DESIGN_SYSTEM.md or armada-project.mdc
                 ))}
               </tbody>
             </table>
-            <h4 className={styles.subTitle}>Composites</h4>
+            <h3 className={styles.subTitle}>Composites</h3>
             {TYPOGRAPHY_VARIANTS.map((variant) => (
               <p key={variant} className={typographyClassName(variant)}>
-                {variant} — The quick brown fox
+                {variant}
               </p>
             ))}
           </section>
 
           <section id="spacing">
-            <h3 className={styles.subTitle}>Spacing</h3>
-            <p className={styles.note}>Spacing rhythm note from the design system: {MISSING_DS}</p>
+            <h2 className={styles.sectionTitle}>Spacing</h2>
+            <p className={styles.lead}>
+              Use these tokens for padding, gap, and offset. A written “rhythm” (zones vs items) is
+              not in this repo yet.
+            </p>
             {spacings.map((name) => (
               <SpacingRow key={name} name={name} />
             ))}
           </section>
 
           <section id="radius">
-            <h3 className={styles.subTitle}>Radius and borders</h3>
+            <h2 className={styles.sectionTitle}>Radius and borders</h2>
+            <p className={styles.lead}>
+              Radius primitives are unitless — wrap with <code>calc(var(--token) * 1px)</code>.
+            </p>
             <div className={styles.grid}>
               {radii.map((name) => (
                 <RadiusCard key={name} name={name} declared={decls.get(name) ?? ''} />
@@ -336,117 +412,123 @@ not documented yet in ARMADA_DESIGN_SYSTEM.md or armada-project.mdc
             </div>
             <div className={styles.grid}>
               {borders.map((name) => (
-                <div key={name} className={styles.swatch}>
+                <button
+                  key={name}
+                  type="button"
+                  className={styles.swatch}
+                  onClick={() => void navigator.clipboard.writeText(`var(${name})`)}
+                  aria-label={`Copy var(${name})`}
+                >
                   <div className={styles.borderBox} style={{ borderColor: `var(${name})` }} />
-                  <code className={styles.meta}>{name}</code>
-                  <span className={styles.meta}>{decls.get(name)}</span>
-                </div>
+                  <span className={styles.swatchName}>{name}</span>
+                </button>
               ))}
             </div>
-            <p className={styles.note}>Shadows: {MISSING_DS} No --shadow tokens in tokens.css.</p>
           </section>
 
           <section id="gradient">
-            <h3 className={styles.subTitle}>Gradient</h3>
+            <h2 className={styles.sectionTitle}>Gradient</h2>
+            <p className={styles.lead}>Brand gem wash stops from theme-overrides / brand tokens.</p>
             <div className={styles.gradientPreview} />
-            <div className={styles.copyRow}>
-              <button
-                type="button"
-                className={styles.copyBtn}
+            <div className={styles.toolbar}>
+              <Button
+                variant="ghost"
+                size="sm"
+                showIcon={false}
+                label="Copy CSS"
                 onClick={() => void navigator.clipboard.writeText(gradientCss)}
-              >
-                Copy CSS
-              </button>
+              />
             </div>
             <pre className={styles.code}>{gradientCss}</pre>
           </section>
 
           <section id="components">
             <h2 className={styles.sectionTitle}>Components</h2>
-            <p className={styles.note}>
-              Folders from <code>src/components/*/index.ts</code>. Usage rules from design system
-              section 8: {MISSING_DS} Theme: use the header toggle (
-              <code>data-theme</code>), not duplicate trees.
+            <p className={styles.lead}>
+              Interactive families first. Everything else in <code>src/components/</code> is listed
+              so you can reuse before inventing. Theme: header toggle. Hover and focus the live
+              controls.
             </p>
-            {folders.map((name) => (
+            {playgrounds.map((name) => (
               <article key={name} className={styles.card} id={`component-${name}`}>
                 <h3 className={styles.subTitle}>{name}</h3>
                 <p className={styles.meta}>src/components/{name}/</p>
                 <ComponentPlayground name={name} />
               </article>
             ))}
-          </section>
-
-          <section id="motion">
-            <h2 className={styles.sectionTitle}>Motion</h2>
-            <p className={styles.note}>
-              There is no formal motion token system beyond{' '}
-              <code>--semantic-motion-theme</code>. Keyframes below are ad hoc CSS in modules.
-              Durations/easings are not centralized; inspect the listed file. Sample replay uses
-              <code> var(--semantic-motion-theme)</code> and{' '}
-              <code>var(--primitives-spacing-10)</code> travel only.
-            </p>
-            <div className={styles.playground}>
-              <button
-                type="button"
-                className={styles.replayBtn}
-                onClick={() => setMotionPlay((value) => value + 1)}
-              >
-                Replay sample enter
-              </button>
-              <div key={motionPlay} className={`${styles.motionBox} ${styles.motionBoxPlay}`} />
-            </div>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>@keyframes</th>
-                  <th>File</th>
-                </tr>
-              </thead>
-              <tbody>
-                {MOTION_KEYFRAMES.map((item) => (
-                  <tr key={`${item.file}-${item.name}`}>
-                    <td>
-                      <code>{item.name}</code>
-                    </td>
-                    <td className={styles.meta}>{item.file}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-
-          <section id="examples">
-            <h2 className={styles.sectionTitle}>Live examples</h2>
-            <p className={styles.note}>
-              Participate flow: {MISSING_DS} (not an app route). Iframes of existing entries.
-            </p>
-            <h3 className={styles.subTitle}>Dashboard</h3>
-            <p className={styles.meta}>BalanceCard, frost surfaces, activity, ThemeToggle.</p>
-            <iframe className={styles.iframe} title="Dashboard" src="/dashboard.html" />
-            <h3 className={styles.subTitle}>Pay via link</h3>
-            <p className={styles.meta}>Landing stack, Button, QR, frost/raised on a product page.</p>
-            <iframe className={styles.iframe} title="Pay via link" src="/pay-via-link.html" />
-            <h3 className={styles.subTitle}>App intro</h3>
-            <p className={styles.meta}>Marketing homepage (`index.html` / `/`).</p>
-            <iframe className={styles.iframe} title="App intro" src="/index.html" />
-          </section>
-
-          <section id="rules">
-            <h2 className={styles.sectionTitle}>Rules reference</h2>
-            <p className={styles.note}>
-              Pulled from <code>.cursor/rules/armada-app.mdc</code> because the two files named in
-              the spec are absent. Design-system one-liners: {MISSING_DS}
-            </p>
-            <ul>
-              {rules.map((rule) => (
-                <li key={rule}>{rule}</li>
+            <h3 className={styles.subTitle}>Also in the repo</h3>
+            <p className={styles.lead}>Needs app context — open the source instead of a fake demo.</p>
+            <ul className={styles.catalog}>
+              {catalogRest.map((name) => (
+                <li key={name}>
+                  <span>{name}</span>
+                </li>
               ))}
             </ul>
           </section>
 
+          <section id="motion">
+            <h2 className={styles.sectionTitle}>Motion</h2>
+            <p className={styles.lead}>
+              There is no shared motion scale yet besides <code>--semantic-motion-theme</code>.
+              Enters in product CSS are ad hoc. This sample uses that duration token and{' '}
+              <code>--primitives-spacing-10</code> travel.
+            </p>
+            <div className={styles.toolbar}>
+              <Button
+                variant="secondary"
+                size="sm"
+                showIcon={false}
+                label="Replay enter"
+                onClick={() => setMotionPlay((value) => value + 1)}
+              />
+              <div key={motionPlay} className={`${styles.motionBox} ${styles.motionBoxPlay}`} />
+            </div>
+            <details className={styles.fold}>
+              <summary>All @keyframes found in src/</summary>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>File</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MOTION_KEYFRAMES.map((item) => (
+                    <tr key={`${item.file}-${item.name}`}>
+                      <td>
+                        <code>{item.name}</code>
+                      </td>
+                      <td className={styles.meta}>{item.file}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          </section>
+
+          <section id="examples">
+            <h2 className={styles.sectionTitle}>In the product</h2>
+            <p className={styles.lead}>Real routes, not rebuilt mocks. Watch frost vs opaque panels.</p>
+            <h3 className={styles.subTitle}>Dashboard</h3>
+            <iframe className={styles.iframe} title="Dashboard" src="/dashboard.html" />
+            <h3 className={styles.subTitle}>Pay via link</h3>
+            <iframe className={styles.iframe} title="Pay via link" src="/pay-via-link.html" />
+          </section>
+
+          <section id="rules">
+            <h2 className={styles.sectionTitle}>Rules</h2>
+            <p className={styles.lead}>From .cursor/rules/armada-app.mdc, unparaphrased.</p>
+            <ol className={styles.rulesList}>
+              {rules.map((rule) => (
+                <li key={rule}>{rule}</li>
+              ))}
+            </ol>
+          </section>
+
           <section id="agent">
             <h2 className={styles.sectionTitle}>Agent guide</h2>
+            <p className={styles.lead}>For models working in this repo. Copy into a prompt if needed.</p>
             <pre className={styles.agent}>{agentText}</pre>
           </section>
         </main>
@@ -482,11 +564,16 @@ function SpacingRow({ name }: { name: string }) {
 function RadiusCard({ name, declared }: { name: string; declared: string }) {
   const resolved = useResolved(name, 'radius')
   return (
-    <div className={styles.swatch}>
+    <button
+      type="button"
+      className={styles.swatch}
+      onClick={() => void navigator.clipboard.writeText(`var(${name})`)}
+      aria-label={`Copy var(${name})`}
+    >
       <div className={styles.radiusBox} style={{ borderRadius: `calc(var(${name}) * 1px)` }} />
-      <code className={styles.meta}>{name}</code>
-      <span className={styles.meta}>{declared}</span>
+      <span className={styles.swatchName}>{name}</span>
       <span className={styles.meta}>{resolved}</span>
-    </div>
+      {declared.includes('var(') ? <span className={styles.alias}>{declared}</span> : null}
+    </button>
   )
 }

@@ -1,9 +1,6 @@
 import type { ComponentType, SVGProps } from 'react'
-import {
-  LifebuoyIcon,
-  NewspaperIcon,
-  SwatchIcon,
-} from '@heroicons/react/24/outline'
+import { NewspaperIcon } from '@heroicons/react/24/outline'
+import { GitHubIcon } from '@/icons/GitHubIcon'
 
 export type NavIcon = ComponentType<SVGProps<SVGSVGElement>>
 
@@ -37,9 +34,43 @@ export function isNavMenu(item: NavItem): item is NavMenu {
   return 'items' in item && Array.isArray(item.items)
 }
 
+export type SocialIconName = 'discord' | 'x' | 'github'
+
+export type SocialLink = {
+  label: string
+  href: string
+  icon: SocialIconName
+}
+
+/** Shared header + footer social icons. */
+export const SOCIAL_LINKS: SocialLink[] = [
+  { label: 'Discord', href: '#discord', icon: 'discord' },
+  { label: 'X', href: '#x', icon: 'x' },
+  { label: 'GitHub', href: '#github', icon: 'github' },
+]
+
+/**
+ * Footer sitemap: direct nav links + menu children (Blog, GitHub).
+ * GitHub also appears as a social icon next to Discord / X.
+ */
+export function getFooterNavLinks(): NavLink[] {
+  return NAV_ITEMS.flatMap((item) => {
+    if (isNavMenu(item)) {
+      return item.items.map((link) => ({
+        id: link.id,
+        label: link.title,
+        href: link.href,
+        ...(link.external ? { external: true as const } : {}),
+      }))
+    }
+    return [item]
+  })
+}
+
 /**
  * Primary site navigation.
  * Only Resources opens a dropdown; other items are direct links.
+ * Header + footer both read from this list.
  */
 export const NAV_ITEMS: NavItem[] = [
   {
@@ -74,19 +105,17 @@ export const NAV_ITEMS: NavItem[] = [
         icon: NewspaperIcon,
       },
       {
-        id: 'brand',
-        title: 'Brand',
-        description: 'Assets and press kit',
-        href: '#brand',
-        icon: SwatchIcon,
-      },
-      {
-        id: 'support',
-        title: 'Support',
-        description: 'Get help from the Armada team',
-        href: '#support',
-        icon: LifebuoyIcon,
+        id: 'github',
+        title: 'GitHub',
+        description: 'Source code and open repositories',
+        href: '#github',
+        icon: GitHubIcon,
       },
     ],
+  },
+  {
+    id: 'about',
+    label: 'About',
+    href: '#about',
   },
 ]

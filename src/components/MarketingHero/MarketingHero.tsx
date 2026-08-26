@@ -14,7 +14,7 @@ import styles from './MarketingHero.module.css'
 const HEADING_LINES = ['Pluggable privacy', 'infrastructure for stablecoins'] as const
 
 const FEATURE_COPY =
-  'Stablecoins are exposed by default. Armada protects USDC balances for organizational money on-chain.'
+  'Stablecoins are exposed by default. Armada protects USDC balances and transaction relationships for organizations operating on-chain.'
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value))
