@@ -1,0 +1,32 @@
+# ABOUTME: Netlify build and routing config for the Armada marketing site.
+# ABOUTME: Mirrors vercel.json — Vite MPA build, clean URLs, homepage aliases.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Netlify serves clean URLs by default: /homepage -> homepage.html,
+# /systemdocs -> systemdocs.html, and / -> index.html. The rewrites below
+# only cover the homepage2..homepage5 aliases that have no matching file.
+[[redirects]]
+  from = "/homepage2"
+  to = "/homepage.html"
+  status = 200
+
+[[redirects]]
+  from = "/homepage3"
+  to = "/homepage.html"
+  status = 200
+
+[[redirects]]
+  from = "/homepage4"
+  to = "/homepage.html"
+  status = 200
+
+[[redirects]]
+  from = "/homepage5"
+  to = "/homepage.html"
+  status = 200
