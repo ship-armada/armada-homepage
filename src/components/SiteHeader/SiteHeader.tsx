@@ -9,7 +9,7 @@ import { Button } from '@/components/Button'
 import { NavMegaMenu } from '@/components/NavMegaMenu'
 import { NAV_ITEMS, SOCIAL_LINKS, isNavMenu, type NavLink } from '@/constants/siteNav'
 import { SocialIcon } from '@/icons/SocialIcon'
-import { openAppWithWallet } from '@/utils/appNavigation'
+import { APP_URL } from '@/utils/appNavigation'
 import landingLogoWhite from '@/assets/landing-logo-white.png'
 import styles from './SiteHeader.module.css'
 
@@ -368,7 +368,7 @@ export function SiteHeader() {
               label="Armada App"
               showIcon
               icon="arrow-right-micro"
-              onClick={openAppWithWallet}
+              href={APP_URL}
               className={styles.appCta}
             />
           </div>
@@ -379,7 +379,7 @@ export function SiteHeader() {
               size="md"
               label="Open app"
               showIcon={false}
-              onClick={openAppWithWallet}
+              href={APP_URL}
               className={`${styles.appCta} ${styles.mobileAppCta}`}
             />
 

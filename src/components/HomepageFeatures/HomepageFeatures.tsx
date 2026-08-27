@@ -13,7 +13,7 @@ import {
   smoothstep,
 } from '@/constants/homepageHandoff'
 import { useDesktopHandoff } from '@/hooks/useDesktopHandoff'
-import { openAppWithWallet } from '@/utils/appNavigation'
+import { APP_URL } from '@/utils/appNavigation'
 import { ComplianceToggleStack } from './ComplianceToggleStack'
 import { FoundationsCubeGrid } from './FoundationsCubeGrid'
 import { BeyondCaptureGuard } from './BeyondCaptureGuard'
@@ -27,8 +27,6 @@ type Cta = {
   label: string
   href?: string
   external?: boolean
-  /** Opens the demo app dashboard (same as header Open app). */
-  openApp?: boolean
   variant: Extract<ButtonVariant, 'primary' | 'secondary' | 'ghost'>
 }
 
@@ -63,7 +61,7 @@ const FEATURES: Block[] = [
     ctas: [
       {
         label: 'Try Armada',
-        openApp: true,
+        href: APP_URL,
         variant: 'primary',
       },
     ],
@@ -121,12 +119,9 @@ function CtaRow({ ctas, align }: { ctas: Cta[]; align: 'center' | 'start' }) {
           size="lg"
           label={cta.label}
           showIcon={false}
-          href={cta.openApp ? undefined : cta.href}
-          onClick={cta.openApp ? openAppWithWallet : undefined}
+          href={cta.href}
           className={cta.variant === 'ghost' ? styles.ghostCta : undefined}
-          {...(cta.external && !cta.openApp
-            ? { target: '_blank', rel: 'noopener noreferrer' }
-            : {})}
+          {...(cta.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         />
       ))}
     </div>
