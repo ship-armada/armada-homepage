@@ -104,7 +104,8 @@ export const NAV_ITEMS: NavItem[] = [
         id: 'blog',
         title: 'Blog',
         description: 'News and updates from the team',
-        href: '#blog',
+        href: 'https://armada.ghost.io',
+        external: true,
         icon: NewspaperIcon,
       },
       {

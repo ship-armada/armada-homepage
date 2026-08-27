@@ -12,9 +12,14 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Pointer proximity contracts the particle shell (decorative). */
-  pointer-events: auto;
-  touch-action: none;
+  /* Decorative hover only — keep touch free so mobile page scroll works. */
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .root {
+    pointer-events: auto;
+  }
 }
 
 .canvasHost {

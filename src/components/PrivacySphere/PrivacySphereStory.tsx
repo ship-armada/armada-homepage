@@ -28,10 +28,10 @@ type LabelLayout = {
 const CORNER_R = 20
 /** Horizontal run into/out of the sphere rim (~50px). */
 const HORIZONTAL_RUN = 48 // --primitives-spacing-12
-/** EXCEPTION — Figma label pill size. */
+/** EXCEPTION — Figma label pill size (desktop defaults; CSS vars override on mobile). */
 const LABEL_WIDTH = 180
 const LABEL_HEIGHT = 56
-/** Gap from sphere top edge — --primitives-spacing-8. */
+/** Gap from sphere top/bottom rim — --primitives-spacing-8. */
 const LABEL_EDGE_GAP = 32
 
 const TRAVEL_DURATION_MS = 7200
@@ -43,6 +43,21 @@ const TRAVEL_PAUSE_MS = 2400
 const SPHERE_RADIUS = 2.4
 const CAMERA_Z = 8.0
 const CAMERA_FOV_DEG = 45
+
+function readCssPx(styles: CSSStyleDeclaration, name: string, fallback: number): number {
+  const value = parseFloat(styles.getPropertyValue(name))
+  return Number.isFinite(value) ? value : fallback
+}
+
+function readLabelMetrics(rootEl: HTMLElement) {
+  const styles = getComputedStyle(rootEl)
+  return {
+    width: readCssPx(styles, '--privacy-label-w', LABEL_WIDTH),
+    height: readCssPx(styles, '--privacy-label-h', LABEL_HEIGHT),
+    edgeGap: readCssPx(styles, '--privacy-label-edge-gap', LABEL_EDGE_GAP),
+    outward: readCssPx(styles, '--privacy-label-outward', 0),
+  }
+}
 
 function silhouettePixelRadius(canvasHeight: number): number {
   const fovRad = (CAMERA_FOV_DEG * Math.PI) / 180
@@ -111,6 +126,7 @@ function measureLayout(
   if (root.width < 1 || root.height < 1) return null
 
   const canvas = canvasEl.getBoundingClientRect()
+  const label = readLabelMetrics(rootEl)
 
   const sphereCxScreen = canvas.left + canvas.width / 2
   const sphereCyScreen = canvas.top + canvas.height / 2
@@ -123,25 +139,29 @@ function measureLayout(
   const sphereTop = sphereCy - sphereR
   const sphereBottom = sphereCy + sphereR
 
-  /* Wallet: 32px below top rim. Address: 32px above bottom rim. */
+  /* Wallet above left rim; address below right rim. Mobile CSS pushes outward. */
   const labels: LabelLayout = {
-    inLeft: sphereLeft.x - HORIZONTAL_RUN - LABEL_WIDTH / 2,
-    inTop: sphereTop + LABEL_EDGE_GAP,
-    outLeft: sphereRight.x + HORIZONTAL_RUN - LABEL_WIDTH / 2,
-    outTop: sphereBottom - LABEL_EDGE_GAP - LABEL_HEIGHT,
+    inLeft: sphereLeft.x - HORIZONTAL_RUN - label.width / 2 - label.outward,
+    inTop: sphereTop + label.edgeGap,
+    outLeft: sphereRight.x + HORIZONTAL_RUN - label.width / 2 + label.outward,
+    outTop: sphereBottom - label.edgeGap - label.height,
   }
 
-  const inX = labels.inLeft + LABEL_WIDTH / 2
-  const outX = labels.outLeft + LABEL_WIDTH / 2
-  const labelInBottom = labels.inTop + LABEL_HEIGHT
+  /* Keep pills inside the stage; on narrow widths this parks them at the edges. */
+  labels.inLeft = Math.max(0, Math.min(labels.inLeft, root.width - label.width))
+  labels.outLeft = Math.max(0, Math.min(labels.outLeft, root.width - label.width))
+
+  const inX = labels.inLeft + label.width / 2
+  const outX = labels.outLeft + label.width / 2
+  const labelInBottom = labels.inTop + label.height
   const labelOutTop = labels.outTop
 
   /* Connectors meet the pill edges; traveler starts/ends at pill centers so the
      USDC is fully covered by the box (no half-peek at handoff). */
   const inAttach = { x: inX, y: labelInBottom }
   const outAttach = { x: outX, y: labelOutTop }
-  const inTravelStart = { x: inX, y: labels.inTop + LABEL_HEIGHT / 2 }
-  const outTravelEnd = { x: outX, y: labels.outTop + LABEL_HEIGHT / 2 }
+  const inTravelStart = { x: inX, y: labels.inTop + label.height / 2 }
+  const outTravelEnd = { x: outX, y: labels.outTop + label.height / 2 }
 
   const inLine = pathBoxToSphereLeft(inAttach, midY, sphereLeft.x, CORNER_R)
   const outLine = pathSphereRightToBox(sphereRight.x, midY, outAttach, CORNER_R)

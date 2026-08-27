@@ -1,7 +1,7 @@
   /* Tokens used (verified in src/styles/tokens.css):
   - Text: --semantic-color-brand-ink
   - Label fill: footer gem gradient (lavender → rose → amber)
-  EXCEPTION — label pill 180×56 (Figma); no matching tokens.
+  EXCEPTION — label pill size via --privacy-label-* (desktop 180×56; mobile compact).
   EXCEPTION — diagram stroke #5A4A62 on brand-deep panels; no matching token.
   EXCEPTION — traveler blur 7px (ref soft in-pool half); no blur token.
   Stack: connectors → blur traveler → sharp traveler → canvas (eyes) → labels
@@ -11,6 +11,11 @@
 .root {
   /* Prefer parent --diagram-stroke (split panels); fallback for standalone. */
   --privacy-sphere-stroke: var(--diagram-stroke, #5a4a62);
+  /* EXCEPTION — Figma label pill 180×56; layout JS reads these. */
+  --privacy-label-w: 180px;
+  --privacy-label-h: 56px;
+  --privacy-label-edge-gap: 32px;
+  --privacy-label-outward: 0px;
   position: relative;
   box-sizing: border-box;
   /* Desktop 480×360 — wider stage so orbit badges clear the sphere sides. */
@@ -28,9 +33,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* EXCEPTION — Figma label pill 180×56; no matching tokens. */
-  width: 180px;
-  height: 56px;
+  width: var(--privacy-label-w);
+  height: var(--privacy-label-h);
   padding: 0;
   border: none;
   border-radius: calc(var(--primitives-borderRadius-full) * 1px);
@@ -151,6 +155,16 @@
 @media (max-width: 767px) {
   .root {
     width: min(100%, calc(var(--primitives-spacing-20) * 4));
+    /* Compact pills sit at the outer ends of the flow lines. */
+    --privacy-label-w: 128px;
+    --privacy-label-h: 40px;
+    --privacy-label-edge-gap: 4px;
+    --privacy-label-outward: 36px;
+  }
+
+  .labelBox {
+    font-size: var(--semantic-typography-ui-label-xs-font-size);
+    letter-spacing: var(--semantic-typography-ui-label-xs-letter-spacing);
   }
 
   .traveler {
