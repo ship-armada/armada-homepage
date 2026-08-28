@@ -219,8 +219,14 @@
   max-width: var(--glass-copy-width);
   text-align: left;
   text-wrap: pretty;
+  font-weight: var(--primitives-fontWeight-regular);
   /* EXCEPTION — white body on fleet photo. */
   color: var(--semantic-component-tag-label);
+}
+
+.featureCopyLead {
+  display: block;
+  font-weight: var(--primitives-fontWeight-bold);
 }
 
 .content {
