@@ -1,0 +1,76 @@
+.section {
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--about-section-pad-y) var(--about-pad-x) var(--about-section-gap);
+}
+
+.card {
+  --card-radius: var(--primitives-spacing-10);
+  --gem-wash-base: var(--primitives-color-amber-100);
+  /*
+    EXCEPTION — gem gradient overlay (design-system carve-out for marketing
+    gradient backgrounds). Matches the footer gem wash palette.
+  */
+  --card-gradient: linear-gradient(
+    135deg,
+    var(--semantic-color-brand-lavender) 0%,
+    var(--semantic-color-brand-gradient-rose) 52%,
+    var(--semantic-color-brand-amber) 100%
+  );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--about-stack-max);
+  padding: var(--primitives-spacing-20) var(--primitives-spacing-20);
+  border-radius: var(--card-radius);
+  background: var(--card-gradient);
+  color: var(--semantic-color-text-primary);
+  text-align: center;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--primitives-spacing-6);
+  max-width: calc(var(--primitives-spacing-20) * 7);
+}
+
+.title {
+  margin: 0;
+  text-wrap: balance;
+}
+
+.titleLine {
+  display: block;
+}
+
+.body {
+  color: var(--semantic-color-text-secondary);
+  text-wrap: pretty;
+  max-width: calc(var(--primitives-spacing-20) * 6);
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--primitives-spacing-4);
+}
+
+@media (max-width: 767px) {
+  .card {
+    --card-radius: var(--primitives-spacing-8);
+    padding: var(--primitives-spacing-16) var(--primitives-spacing-8);
+  }
+
+  .ctaRow {
+    gap: var(--primitives-spacing-3);
+  }
+}

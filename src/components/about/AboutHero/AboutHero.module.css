@@ -1,0 +1,79 @@
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  /*
+    Clears the absolute header, then a page-block of air before the copy.
+    No min-height — the roadmap sits directly under the CTA.
+  */
+  padding:
+    calc(
+      var(--primitives-spacing-5) * 2 + var(--primitives-spacing-10) +
+        var(--semantic-spacing-page-block)
+    )
+    var(--about-pad-x)
+    var(--about-section-gap);
+  color: var(--semantic-color-text-primary);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: var(--about-stack-max);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  width: 100%;
+  max-width: calc(var(--primitives-spacing-20) * 9);
+  text-wrap: pretty;
+}
+
+.titleLine {
+  display: block;
+}
+
+.body {
+  width: 100%;
+  max-width: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-11));
+  color: var(--semantic-color-text-secondary);
+  text-wrap: pretty;
+}
+
+/*
+  `armada-site-stack` only widens the gap after `.armada-text-body`; the hero
+  sub-copy is `detail`, so restate the body-to-CTA rhythm here.
+*/
+.copy > .body + .ctaRow {
+  margin-top: var(--semantic-spacing-site-body-to-cta);
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--primitives-spacing-5);
+}
+
+@media (min-width: 768px) {
+  .titleLine {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 767px) {
+  .title,
+  .body {
+    max-width: none;
+  }
+
+  .ctaRow {
+    gap: var(--primitives-spacing-3);
+  }
+}

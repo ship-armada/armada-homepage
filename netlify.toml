@@ -9,8 +9,9 @@
   NODE_VERSION = "20"
 
 # Netlify serves clean URLs by default: /homepage -> homepage.html,
-# /systemdocs -> systemdocs.html, and / -> index.html. The rewrites below
-# only cover the homepage2..homepage5 aliases that have no matching file.
+# /about -> about.html, /systemdocs -> systemdocs.html, and / -> index.html.
+# The rewrites below only cover the homepage2..homepage5 aliases that have no
+# matching file.
 [[redirects]]
   from = "/homepage2"
   to = "/homepage.html"

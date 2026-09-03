@@ -4,6 +4,7 @@
   "routes": [
     { "src": "^/homepage/?$", "dest": "/homepage.html" },
     { "src": "^/homepage[2-5]/?$", "dest": "/homepage.html" },
+    { "src": "^/about/?$", "dest": "/about.html" },
     { "src": "^/systemdocs/?$", "dest": "/systemdocs.html" },
     { "src": "^/$", "dest": "/index.html" }
   ]

@@ -1,0 +1,177 @@
+.section {
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--about-section-pad-y) var(--about-pad-x);
+  color: var(--semantic-color-text-primary);
+}
+
+.layout {
+  --detail-gutter: var(--primitives-spacing-20);
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--about-stack-max);
+}
+
+.heading {
+  margin: 0 0 var(--primitives-spacing-20);
+  text-wrap: pretty;
+}
+
+.headingLine {
+  display: block;
+}
+
+/*
+  Name left, bio right, both inside the same rule-separated row — so the row
+  grows to fit whichever bio is open and the rest stay single-line.
+*/
+.member {
+  --member-rule: color-mix(in srgb, var(--semantic-color-text-primary) 28%, transparent);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--detail-gutter);
+  align-items: start;
+  width: 100%;
+  border-top: calc(var(--primitives-borderWidth-default) * 1px) solid var(--member-rule);
+  border-bottom: calc(var(--primitives-borderWidth-default) * 1px) solid var(--member-rule);
+}
+
+/* Adjacent members share a rule — drop the duplicate so the hairline stays 1px. */
+.member + .member {
+  border-top: none;
+}
+
+.memberHead {
+  grid-column: 1;
+  margin: 0;
+  font: inherit;
+}
+
+.memberButton {
+  display: flex;
+  align-items: center;
+  gap: var(--primitives-spacing-2);
+  width: 100%;
+  /* 24px min target (AA) once the label’s line box is included. */
+  min-height: var(--primitives-spacing-11);
+  padding: var(--primitives-spacing-8) 0;
+  border-radius: calc(var(--primitives-borderRadius-md) * 1px);
+  color: var(--semantic-color-text-secondary);
+  text-align: left;
+  transition: color 200ms ease;
+}
+
+.memberButton:focus-visible {
+  outline: 2px solid var(--semantic-color-border-focus);
+  outline-offset: var(--primitives-spacing-1);
+}
+
+.memberName {
+  font-family: var(--semantic-typography-ui-heading-lg-font-family), sans-serif;
+  font-size: calc(var(--primitives-fontSize-3xl) * 1px);
+  font-weight: var(--primitives-fontWeight-regular);
+  line-height: var(--primitives-lineHeight-snug);
+  letter-spacing: var(--semantic-typography-ui-heading-lg-letter-spacing);
+}
+
+.member[data-active] .memberButton {
+  color: var(--semantic-color-text-primary);
+}
+
+.member[data-active] .memberName {
+  font-weight: var(--primitives-fontWeight-bold);
+}
+
+.memberChevron {
+  flex-shrink: 0;
+  width: var(--primitives-spacing-6);
+  height: var(--primitives-spacing-6);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.member[data-active] .memberChevron {
+  opacity: 1;
+}
+
+.panel {
+  grid-column: 2;
+  /* Matches the name’s padding so both columns start on the same line. */
+  padding: var(--primitives-spacing-8) 0;
+}
+
+.bio {
+  color: var(--semantic-color-text-secondary);
+  text-wrap: pretty;
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  gap: var(--primitives-spacing-3);
+  list-style: none;
+  margin: var(--primitives-spacing-5) 0 0;
+  padding: 0;
+}
+
+.socialLink,
+.socialIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 40px control — above the 24px AA floor, matching header socials. */
+  width: var(--primitives-spacing-10);
+  height: var(--primitives-spacing-10);
+  border-radius: calc(var(--primitives-borderRadius-full) * 1px);
+  background: var(--semantic-color-frost-control);
+  color: var(--semantic-color-text-primary);
+}
+
+.socialLink {
+  transition: background 150ms ease;
+}
+
+.socialLink:hover {
+  background: var(--semantic-color-frost-pressed);
+}
+
+.socialLink:focus-visible {
+  outline: 2px solid var(--semantic-color-border-focus);
+  outline-offset: var(--primitives-spacing-1);
+}
+
+@media (max-width: 1199px) {
+  .layout {
+    --detail-gutter: var(--primitives-spacing-10);
+  }
+}
+
+/* Single column: the bio stacks under its name as a plain accordion panel. */
+@media (max-width: 767px) {
+  .member {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    grid-column: 1;
+    padding: 0 0 var(--primitives-spacing-5);
+  }
+
+  .memberChevron {
+    margin-left: auto;
+    transform: rotate(90deg);
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memberButton,
+  .memberChevron,
+  .socialLink {
+    transition: none;
+  }
+}

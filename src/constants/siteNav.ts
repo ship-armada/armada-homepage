@@ -34,7 +34,7 @@ export function isNavMenu(item: NavItem): item is NavMenu {
   return 'items' in item && Array.isArray(item.items)
 }
 
-export type SocialIconName = 'discord' | 'x' | 'github'
+export type SocialIconName = 'discord' | 'x' | 'github' | 'linkedin'
 
 export type SocialLink = {
   label: string
@@ -121,6 +121,6 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'about',
     label: 'About',
-    href: '#about',
+    href: '/about',
   },
 ]
