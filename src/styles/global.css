@@ -19,6 +19,15 @@ body {
   line-height: var(--primitives-lineHeight-normal);
 }
 
+/*
+  The HTML <style> block sets background-color before any JS or CSS loads.
+  Only set on html (overscroll area + iOS chrome band) — NOT body, so the
+  header's backdrop-filter shows frosted white, not the wash tint.
+*/
+html.armada-brand-chrome {
+  background-color: #e9c9d5 !important;
+}
+
 button {
   cursor: pointer;
   border: none;

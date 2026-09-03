@@ -39,7 +39,16 @@ const CLOSE_DELAY_MS = 160
 /** Matches `.mobilePanel` transform duration. */
 const MOBILE_DRAWER_MS = 320
 
-export function SiteHeader() {
+export interface SiteHeaderProps {
+  /**
+   * Chrome palette at rest (before the solid bar docks).
+   * `media` — white logo/links over the homepage hero photo.
+   * `ink` — dark logo/links for pages that open on a light surface.
+   */
+  tone?: 'media' | 'ink'
+}
+
+export function SiteHeader({ tone = 'media' }: SiteHeaderProps = {}) {
   /** Fixed solid chrome — only while scrolling up (or mobile menu open). */
   const [floating, setFloating] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -247,8 +256,11 @@ export function SiteHeader() {
     return () => cancelAnimationFrame(frame)
   }, [showSolid])
 
+  const inkTone = tone === 'ink'
+
   const headerClass = [
     styles.header,
+    inkTone && styles.headerInk,
     showSolid && styles.headerDocked,
     showSolid && styles.headerScrolled,
     showSolid && slideIn && styles.headerSlideIn,
@@ -261,8 +273,12 @@ export function SiteHeader() {
       <header className={headerClass}>
         <div className={styles.inner}>
           <a href="/" className={styles.logoLink} aria-label="Armada home">
-            {showSolid ? (
-              <ArmadaLogo variant="full" className={styles.logo} />
+            {showSolid || inkTone ? (
+              <ArmadaLogo
+                variant="full"
+                markTone="ink"
+                className={styles.logo}
+              />
             ) : (
               <img
                 className={styles.logoImg}

@@ -1,0 +1,95 @@
+.page {
+  /* Shared with the homepage feature stack so section widths line up. */
+  --about-stack-max: calc(
+    var(--primitives-spacing-20) * 18 + var(--primitives-spacing-16) - var(--primitives-spacing-1) /
+      2
+  );
+  --about-pad-x: var(--primitives-spacing-20);
+  /* 160px between section content — `--primitives-spacing-20` on each side. */
+  --about-section-gap: calc(var(--primitives-spacing-20) * 2);
+  --about-section-pad-y: var(--primitives-spacing-20);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  width: 100%;
+  --gem-wash-base: var(--primitives-color-amber-100);
+  --gem-wash-start: color-mix(
+    in srgb,
+    var(--semantic-color-brand-lavender) 40%,
+    var(--gem-wash-base)
+  );
+  --gem-wash: linear-gradient(
+    180deg,
+    var(--gem-wash-start) 0%,
+    color-mix(in srgb, var(--semantic-color-brand-gradient-rose) 40%, var(--gem-wash-base)) 52%,
+    color-mix(in srgb, var(--semantic-color-brand-amber) 40%, var(--gem-wash-base)) 100%
+  );
+  /* Wash start so any gap above the footer never flashes page white. */
+  background-color: var(--gem-wash-start);
+  color: var(--semantic-color-text-primary);
+}
+
+.skipLink {
+  position: absolute;
+  left: var(--primitives-spacing-4);
+  top: var(--primitives-spacing-4);
+  z-index: 200;
+  padding: var(--primitives-spacing-2) var(--primitives-spacing-4);
+  border-radius: calc(var(--primitives-borderRadius-md) * 1px);
+  background: var(--semantic-color-surface-raised);
+  color: var(--semantic-color-text-primary);
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-size: calc(var(--primitives-fontSize-base) * 1px);
+  font-weight: var(--primitives-fontWeight-medium);
+  transform: translateY(-200%);
+}
+
+.skipLink:focus {
+  outline: 2px solid var(--semantic-color-border-focus);
+  outline-offset: 2px;
+  transform: translateY(0);
+}
+
+.main {
+  flex: 0 0 auto;
+  width: 100%;
+  /*
+    Viewport-locked wash, same as the homepage feature stack. Footer is a
+    sibling so it keeps its own fill.
+  */
+  background-color: var(--gem-wash-start);
+  background-image: var(--gem-wash);
+  background-size: 100% 100lvh;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.topBand {
+  position: relative;
+  width: 100%;
+}
+
+/* iOS Safari can’t composite fixed backgrounds — fall back to the flat wash. */
+@supports (-webkit-touch-callout: none) {
+  .main {
+    background-attachment: scroll;
+    background-image: none;
+  }
+}
+
+@media (max-width: 1199px) {
+  .page {
+    --about-pad-x: var(--primitives-spacing-10);
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    --about-pad-x: var(--primitives-spacing-3);
+    /* Half the desktop rhythm — 80px between sections, not 160. */
+    --about-section-gap: var(--primitives-spacing-20);
+    --about-section-pad-y: var(--primitives-spacing-10);
+  }
+}

@@ -1,0 +1,1 @@
+export { CoreTeam } from './CoreTeam'

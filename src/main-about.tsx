@@ -5,9 +5,9 @@ import './styles/theme-overrides.css'
 import { initFixedLightTheme } from '@/utils/theme'
 import { initPageTransition } from '@/utils/pageTransition'
 import { mountRoot } from '@/mountRoot'
-import { Homepage } from './pages/Homepage'
+import { About } from './pages/About'
 
 initFixedLightTheme()
 initPageTransition()
 
-mountRoot(<Homepage heroScrollExit />)
+mountRoot(<About />)

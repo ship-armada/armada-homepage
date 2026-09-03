@@ -31,6 +31,23 @@
   border-bottom-color: var(--semantic-color-border-default);
 }
 
+/* On ink-tone pages (light wash background) the frosted bar tints pink.
+   Use a fully opaque surface instead so the bar is always clean white. */
+.headerInk.headerScrolled {
+  background: var(--semantic-color-surface-default);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/*
+  Pages that open on a light surface instead of the hero photo. Chrome stays
+  transparent but the logo, links and CTA use the docked (dark-on-light)
+  palette so text keeps AA contrast against the page wash.
+*/
+.headerInk {
+  background: transparent;
+}
+
 .headerMenuOpen {
   /* EXCEPTION — full-bleed black drawer chrome (matches brand-ink). */
   background: var(--semantic-color-brand-ink);
@@ -111,7 +128,8 @@
 }
 
 .headerScrolled .navLink,
-.headerMenuOpen .navLink {
+.headerMenuOpen .navLink,
+.headerInk .navLink {
   color: var(--semantic-color-text-primary);
 }
 
@@ -123,7 +141,9 @@
 .headerScrolled .navLink:hover,
 .headerScrolled .navLinkOpen,
 .headerMenuOpen .navLink:hover,
-.headerMenuOpen .navLinkOpen {
+.headerMenuOpen .navLinkOpen,
+.headerInk .navLink:hover,
+.headerInk .navLinkOpen {
   background: var(--semantic-color-surface-hover);
 }
 
@@ -169,7 +189,8 @@
 }
 
 .headerScrolled .socialLink,
-.headerMenuOpen .socialLink {
+.headerMenuOpen .socialLink,
+.headerInk .socialLink {
   color: var(--semantic-color-text-primary);
 }
 
@@ -178,7 +199,8 @@
 }
 
 .headerScrolled .socialLink:hover,
-.headerMenuOpen .socialLink:hover {
+.headerMenuOpen .socialLink:hover,
+.headerInk .socialLink:hover {
   background: var(--semantic-color-surface-hover);
 }
 
@@ -205,16 +227,19 @@
   background: color-mix(in srgb, var(--semantic-color-text-primary) 10%, var(--semantic-color-surface-default));
 }
 
-.headerScrolled .appCta.appCta {
+.headerScrolled .appCta.appCta,
+.headerInk .appCta.appCta {
   background: var(--semantic-component-button-primary-bg);
   color: var(--semantic-component-button-primary-text);
 }
 
-.headerScrolled .appCta.appCta:hover:not(:disabled) {
+.headerScrolled .appCta.appCta:hover:not(:disabled),
+.headerInk .appCta.appCta:hover:not(:disabled) {
   background: var(--semantic-component-button-primary-bg-hover);
 }
 
-.headerScrolled .appCta.appCta:active:not(:disabled) {
+.headerScrolled .appCta.appCta:active:not(:disabled),
+.headerInk .appCta.appCta:active:not(:disabled) {
   background: var(--semantic-component-button-primary-bg-active);
 }
 
@@ -241,7 +266,8 @@
   display: inline-flex;
 }
 
-.headerScrolled .burger {
+.headerScrolled .burger,
+.headerInk .burger {
   color: var(--semantic-color-text-primary);
 }
 
