@@ -1,0 +1,59 @@
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  /* Mid-page rhythm — not the hero’s header-clearance pad. */
+  padding: var(--about-section-gap) var(--about-pad-x);
+  color: var(--semantic-color-text-primary);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--primitives-spacing-6);
+  width: 100%;
+  max-width: var(--about-stack-max);
+  text-align: center;
+}
+
+/* Prefer stack gap over site-stack sibling margins. */
+.copy > * + * {
+  margin-top: 0;
+}
+
+.eyebrow {
+  align-self: center;
+}
+
+.title {
+  margin: 0;
+  width: 100%;
+  max-width: calc(var(--primitives-spacing-20) * 12);
+  text-wrap: balance;
+}
+
+.body {
+  margin: 0;
+  width: 100%;
+  max-width: calc(var(--primitives-spacing-20) * 7);
+  color: var(--semantic-color-text-secondary);
+  text-wrap: pretty;
+}
+
+@media (max-width: 767px) {
+  .section {
+    padding-block: var(--about-section-pad-y);
+  }
+
+  .copy {
+    gap: var(--primitives-spacing-5);
+  }
+
+  .title,
+  .body {
+    max-width: none;
+  }
+}

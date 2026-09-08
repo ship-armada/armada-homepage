@@ -4,6 +4,9 @@ export type RoadmapStage = {
   id: string
   /** Short uppercase marker rendered on the roadmap card. */
   label: string
+  /** Bold lead-in after the label (verb / key phrase). */
+  lead: string
+  /** Remainder of the stage sentence after `lead`. */
   body: string
 }
 
@@ -20,6 +23,10 @@ export type TeamMember = {
   socials: TeamSocial[]
 }
 
+export type SupportersParagraph =
+  | { lead: string; body: string }
+  | { body: string }
+
 const teamSocials = (linkedin: string, x: string): TeamSocial[] => [
   { label: 'LinkedIn', href: linkedin, icon: 'linkedin' },
   { label: 'X', href: x, icon: 'x' },
@@ -27,7 +34,7 @@ const teamSocials = (linkedin: string, x: string): TeamSocial[] => [
 
 export const ABOUT_HERO = {
   title: ['Armada is designed to be', 'a privacy layer for stablecoins'],
-  body: 'Shielded USDC that settles across chains, with disclosure that stays under the account holder’s control.',
+  body: 'A simple, durable way for wallets, fintechs, and on-chain financial products to offer shielded USDC balances and transfers.',
   cta: {
     label: 'Try Armada',
     href: APP_URL,
@@ -40,37 +47,41 @@ export const ROADMAP = {
     {
       id: 'now',
       label: 'Now',
-      body: 'Launch the shielded USDC pool, SDK and first integrations.',
+      lead: 'launch',
+      body: ' the shielded USDC protocol, SDK, and first integrations.',
     },
     {
       id: 'next',
       label: 'Next',
-      body: 'Expand cross-chain coverage and open the relayer set so transfers settle wherever balances already live.',
+      lead: 'expand',
+      body: ' integration surfaces, custody and signing models, and supported capital workflows.',
     },
     {
       id: 'then',
       label: 'Then',
-      body: 'Ship shielded yield and selective disclosure tooling that treasuries and auditors can rely on.',
+      lead: 'broaden',
+      body: ' the network of applications using Armada, so privacy improves through increased usage and activity.',
     },
     {
       id: 'finally',
       label: 'Finally',
-      body: 'Hand the protocol to its users: neutral, governed in the open, and impossible for any single party to capture.',
+      lead: 'make private stablecoin infrastructure normal',
+      body: ', disappearing into on-chain financial products and services.',
     },
   ] as RoadmapStage[],
 }
 
 export const FLEET = {
   title: ['The Armada', 'fleet'],
-  body: 'Armada is built to be a small fleet supported by a broad network of sailors: contributors, research partners, Ethereum core teams, security reviewers and fellow builders.',
+  body: 'Armada is developed and supported by a small core team supported by a growing network of advisors, contributors, cryptographers, Ethereum community members, past colleagues, and fellow builders.',
 }
 
 export const CORE_TEAM = {
-  title: ['The core team'],
+  title: ['Core team'],
   members: [
     {
       id: 'gavin',
-      name: 'Gavin',
+      name: 'Gavin Birch',
       bio: 'Gavin Birch leads Armada’s vision and launch. Previously part of the founding teams at Figment and Figment Capital, and an angel investor in 50+ projects. He later bootstrapped Knowable, a technical team that has supported privacy projects for more than three years. A long-time privacy power user, he is building the product he wants to use himself.',
       socials: teamSocials(
         'https://www.linkedin.com/in/gavin-birch-74729918b',
@@ -98,7 +109,7 @@ export const CORE_TEAM = {
     {
       id: 'diego',
       name: 'Diego',
-      bio: 'Diego leads design and Armada’s creative direction. He has worked across crypto and fintech, including work for Aave.',
+      bio: 'Diego leads front-end design and Armada’s creative direction. He has worked across crypto and fintech, including work for Aave.',
       socials: teamSocials(
         'https://www.linkedin.com/in/diegoprudencio',
         'https://x.com/diegoprudencio',
@@ -114,11 +125,16 @@ export const CORE_TEAM = {
 }
 
 export const SUPPORTERS = {
-  title: ['Advisors and', 'supporters'],
+  title: ['Advisors and supporters'],
   body: [
-    'Veil advises on economics and market design. A crypto-native tactical unit founded by former Polychain Capital team members, Veil has supported some of the largest projects in the space.',
-    'Armada is also supported by cryptographers, Ethereum core community members, past colleagues, fellow builders, and friends from the trenches, advising and contributing in varying capacities.',
-  ],
+    {
+      lead: 'Veil',
+      body: ' advises on economics and market design. A crypto-native tactical unit founded by former Polychain Capital team members, Veil has supported some of the largest projects in the space.',
+    },
+    {
+      body: 'Armada is also supported by cryptographers, Ethereum core community members, past colleagues, fellow builders, and friends from the trenches, advising and contributing in varying capacities.',
+    },
+  ] as SupportersParagraph[],
 }
 
 export const BUILD_WITH_ARMADA = {

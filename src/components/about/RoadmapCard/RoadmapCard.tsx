@@ -112,7 +112,10 @@ export function RoadmapCard() {
                     <Tag label={stage.label} dot={isActive ? 'lavender' : undefined} />
                   </span>
                   <div id={bodyId} className={styles.stageBody} hidden={!isActive}>
-                    <p className={`armada-text-detail ${styles.stageText}`}>{stage.body}</p>
+                    <p className={`armada-text-detail ${styles.stageText}`}>
+                      <strong className={styles.stageLead}>{stage.lead}</strong>
+                      {stage.body}
+                    </p>
                   </div>
                   <button
                     type="button"

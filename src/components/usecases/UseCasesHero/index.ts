@@ -1,0 +1,1 @@
+export { UseCasesHero } from './UseCasesHero'

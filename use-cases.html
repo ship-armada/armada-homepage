@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function () {
+        document.documentElement.setAttribute('data-theme', 'light');
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Wash-start colour (lavender 40% over amber-100). Matches the gem wash gradient
+    used on this page. Keep in sync with --semantic-color-brand-lavender / --primitives-color-amber-100
+    in theme-overrides.css. Can't reference CSS variables here since this renders before stylesheets load. -->
+    <meta name="theme-color" content="#e9c9d5" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <style>
+      /* Overscroll rubber-band + iOS chrome band — html only, not body,
+         so the frosted header keeps its white backdrop. */
+      html { background-color: #e9c9d5; }
+    </style>
+    <meta
+      name="description"
+      content="Use cases for Armada — private USDC for custody, treasury, payroll, grants, and commerce without replacing existing systems."
+    />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon-light.ico" sizes="any" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/favicon-dark.ico" sizes="any" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-light-16x16.png" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark-32x32.png" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-dark-16x16.png" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Charis+SIL:wght@400;700&family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Use cases — Armada</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main-use-cases.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,97 @@
+.root {
+  /* Desktop max — 400px (same as thumb cards). */
+  --use-case-card-max: calc(var(--primitives-spacing-20) * 5);
+  --use-case-card-peek: var(--primitives-spacing-10);
+  /* Tall enough for number up top + copy below. */
+  --use-case-card-min-h: calc(
+    var(--primitives-spacing-20) * 5 + var(--primitives-spacing-10)
+  );
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--primitives-spacing-10);
+  width: min(
+    var(--use-case-card-max),
+    calc(100vw - var(--about-pad-x) - var(--use-case-card-peek))
+  );
+  max-width: 100%;
+  min-height: var(--use-case-card-min-h);
+  height: 100%;
+  padding: var(--primitives-spacing-6);
+  border-radius: calc(var(--semantic-borderRadius-modal) * 1px);
+  background: var(--semantic-color-surface-banner);
+  color: var(--semantic-color-text-primary);
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--primitives-spacing-4);
+}
+
+.indexChip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--primitives-spacing-16);
+  height: var(--primitives-spacing-16);
+  border-radius: calc(var(--primitives-borderRadius-2xl) * 1px);
+  background: var(--primitives-color-purple-100);
+}
+
+.index {
+  margin: 0;
+  font-size: calc(var(--primitives-fontSize-2xl) * 1px);
+  line-height: var(--primitives-lineHeight-none);
+  color: var(--semantic-color-text-primary);
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-weight: var(--primitives-fontWeight-semibold);
+  font-size: calc(var(--primitives-fontSize-xl) * 1px);
+  line-height: var(--primitives-lineHeight-snug);
+  letter-spacing: var(--primitives-letterSpacing-normal);
+  color: var(--semantic-color-text-primary);
+}
+
+.textBlock {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+}
+
+.body {
+  margin: 0;
+  color: color-mix(in srgb, var(--semantic-color-text-primary) 60%, transparent);
+  line-height: var(--primitives-lineHeight-relaxed);
+  text-wrap: pretty;
+}
+
+.body + .body {
+  margin-top: var(--primitives-spacing-5);
+}
+
+@media (max-width: 767px) {
+  .root {
+    --use-case-card-min-h: calc(
+      var(--primitives-spacing-20) * 4 + var(--primitives-spacing-10)
+    );
+    padding: var(--primitives-spacing-5);
+  }
+
+  .indexChip {
+    width: var(--primitives-spacing-12);
+    height: var(--primitives-spacing-12);
+  }
+
+  .index {
+    font-size: calc(var(--primitives-fontSize-xl) * 1px);
+  }
+}
