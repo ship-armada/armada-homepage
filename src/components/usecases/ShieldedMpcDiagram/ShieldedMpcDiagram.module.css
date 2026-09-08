@@ -1,0 +1,316 @@
+/*
+  Scaled MPC flow with L→R camera pan.
+  EXCEPTION — --diagram-stroke #5a4a62 on brand-deep.
+  EXCEPTION — #ffffff / ink on brand-deep (theme remaps white-full).
+  EXCEPTION — traveler blur 7px (PrivacySphere).
+*/
+
+.viewport {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  pointer-events: none;
+  width: auto;
+  height: auto;
+  min-height: 0;
+}
+
+.stage {
+  --mpc-stroke: var(--diagram-stroke, #5a4a62);
+  --privacy-sphere-stroke: var(--mpc-stroke);
+  --mpc-label: #ffffff;
+  --mpc-ink: var(--semantic-color-brand-ink);
+  --fade-ease: cubic-bezier(1, 0.01, 0.47, 1);
+  --slide-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --s: 1;
+
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns:
+    calc(220 * var(--s) * 1px)
+    calc(280 * var(--s) * 1px)
+    max-content;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'wallet sphere dest';
+  align-items: center;
+  justify-items: center;
+  /* Wide gaps — neighbors stay off-camera while one segment is framed. */
+  column-gap: calc(280 * var(--s) * 1px);
+  padding: 0 calc(200 * var(--s) * 1px);
+  box-sizing: border-box;
+  isolation: isolate;
+  transition: transform 900ms var(--slide-ease);
+  will-change: transform;
+}
+
+.connectors {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.stroke {
+  fill: none;
+  stroke: var(--mpc-stroke);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.4;
+  transition: opacity 400ms var(--fade-ease);
+  vector-effect: non-scaling-stroke;
+}
+
+.strokeLit {
+  opacity: 1;
+}
+
+.travelPath {
+  fill: none;
+  stroke: none;
+  pointer-events: none;
+}
+
+.travelerLayerBlur,
+.travelerLayerSharp {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Keep USDC under pills / labels (PrivacySphere stack). */
+.travelerLayerBlur {
+  z-index: 2;
+}
+
+.travelerLayerSharp {
+  z-index: 3;
+}
+
+.traveler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(20 * var(--s) * 1px);
+  height: calc(20 * var(--s) * 1px);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.travelerBlur {
+  filter: blur(7px);
+}
+
+.node {
+  position: relative;
+  z-index: 8;
+  /* Promote above WebGL canvas compositor layers on mobile. */
+  transform: translateZ(0);
+  opacity: 0.5;
+  filter: saturate(0.75);
+  transition:
+    opacity 400ms var(--fade-ease),
+    filter 400ms var(--fade-ease);
+}
+
+.nodeOn {
+  opacity: 1;
+  filter: none;
+}
+
+.wallet {
+  grid-area: wallet;
+  justify-self: center;
+  width: calc(220 * var(--s) * 1px);
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--s) * 1px);
+}
+
+.nodeEyebrow {
+  margin: 0;
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-size: calc(11 * var(--s) * 1px);
+  font-weight: var(--primitives-fontWeight-medium);
+  letter-spacing: var(--primitives-letterSpacing-wide);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--mpc-label) 72%, transparent);
+  text-align: center;
+}
+
+.walletStack {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--s) * 1px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.walletPill {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: calc(10 * var(--s) * 1px);
+  box-sizing: border-box;
+  width: 100%;
+  padding: calc(11 * var(--s) * 1px) calc(14 * var(--s) * 1px);
+  border-radius: calc(999 * var(--s) * 1px);
+  border: 1px solid color-mix(in srgb, var(--semantic-color-brand-lavender) 35%, transparent);
+  background: color-mix(in srgb, var(--semantic-color-brand-lavender) 10%, transparent);
+  color: color-mix(in srgb, var(--semantic-color-brand-lavender) 75%, var(--mpc-label));
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-size: calc(13 * var(--s) * 1px);
+  font-weight: var(--primitives-fontWeight-medium);
+  line-height: var(--primitives-lineHeight-snug);
+}
+
+.walletIcon {
+  flex-shrink: 0;
+  width: calc(18 * var(--s) * 1px);
+  height: calc(18 * var(--s) * 1px);
+  stroke-width: 1.5;
+  color: var(--semantic-color-brand-lavender);
+}
+
+.sphereSlot {
+  grid-area: sphere;
+  position: relative;
+  z-index: 4;
+  width: calc(280 * var(--s) * 1px);
+  height: calc(280 * var(--s) * 1px);
+  isolation: isolate;
+}
+
+.canvasHost {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.canvasHost canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.privacyPills {
+  position: absolute;
+  inset: 20% 16% 18%;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8 * var(--s) * 1px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  transform: translateZ(0);
+  transition: opacity 450ms var(--fade-ease);
+  pointer-events: none;
+}
+
+.privacyOn {
+  opacity: 1;
+}
+
+.privacyPills li {
+  width: 100%;
+  padding: calc(8 * var(--s) * 1px) calc(12 * var(--s) * 1px);
+  border-radius: calc(999 * var(--s) * 1px);
+  background: color-mix(in srgb, var(--mpc-ink) 90%, transparent);
+  color: var(--mpc-label);
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-size: calc(11 * var(--s) * 1px);
+  font-weight: var(--primitives-fontWeight-medium);
+  line-height: var(--primitives-lineHeight-snug);
+  text-align: center;
+  box-shadow: 0 calc(3 * var(--s) * 1px) calc(10 * var(--s) * 1px)
+    color-mix(in srgb, black 40%, transparent);
+}
+
+.dest {
+  grid-area: dest;
+  justify-self: center;
+  min-width: calc(260 * var(--s) * 1px);
+}
+
+.destPill {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: calc(10 * var(--s) * 1px);
+  box-sizing: border-box;
+  width: max-content;
+  max-width: none;
+  padding: calc(12 * var(--s) * 1px) calc(14 * var(--s) * 1px);
+  border-radius: calc(999 * var(--s) * 1px);
+  background: var(--mpc-label);
+  color: var(--mpc-ink);
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-size: calc(12 * var(--s) * 1px);
+  font-weight: var(--primitives-fontWeight-medium);
+  line-height: var(--primitives-lineHeight-snug);
+  white-space: nowrap;
+  box-shadow: 0 calc(4 * var(--s) * 1px) calc(14 * var(--s) * 1px)
+    color-mix(in srgb, black 35%, transparent);
+}
+
+.tokenCluster {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: calc(24 * var(--s) * 1px);
+  height: calc(24 * var(--s) * 1px);
+}
+
+.usdc {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.plusBadge {
+  position: absolute;
+  right: calc(-3 * var(--s) * 1px);
+  bottom: calc(-2 * var(--s) * 1px);
+  width: calc(12 * var(--s) * 1px);
+  height: calc(12 * var(--s) * 1px);
+  border-radius: 50%;
+  background: var(--semantic-color-brand-gradient-rose);
+  box-shadow: 0 0 0 1.5px var(--mpc-label);
+}
+
+.stage[data-reduced] .node,
+.stage[data-reduced] .privacyPills {
+  opacity: 1;
+  filter: none;
+}
+
+.stage[data-reduced] .traveler {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    transition: none;
+  }
+
+  .node,
+  .privacyPills,
+  .stroke {
+    transition: none;
+  }
+}

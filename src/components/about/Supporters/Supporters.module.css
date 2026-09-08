@@ -38,6 +38,11 @@
   text-wrap: pretty;
 }
 
+.lead {
+  color: var(--semantic-color-text-primary);
+  font-weight: var(--primitives-fontWeight-semibold);
+}
+
 @media (max-width: 1199px) {
   .layout {
     gap: var(--primitives-spacing-10);

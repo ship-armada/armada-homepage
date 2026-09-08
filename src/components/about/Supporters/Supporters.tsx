@@ -22,12 +22,19 @@ export function Supporters() {
         <div className={styles.prose}>
           {SUPPORTERS.body.map((paragraph, index) => (
             <p
-              key={paragraph}
+              key={'lead' in paragraph ? `${paragraph.lead}${paragraph.body}` : paragraph.body}
               className={`armada-text-body ${styles.paragraph}`}
               data-cascade=""
               style={cascadeStyle(index + 1)}
             >
-              {paragraph}
+              {'lead' in paragraph ? (
+                <>
+                  <strong className={styles.lead}>{paragraph.lead}</strong>
+                  {paragraph.body}
+                </>
+              ) : (
+                paragraph.body
+              )}
             </p>
           ))}
         </div>

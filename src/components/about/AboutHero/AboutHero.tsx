@@ -15,7 +15,7 @@ export function AboutHero() {
             </span>
           ))}
         </h1>
-        <p className={`armada-text-detail ${styles.body}`}>{ABOUT_HERO.body}</p>
+        <p className={`armada-text-body ${styles.body}`}>{ABOUT_HERO.body}</p>
         <div className={styles.ctaRow}>
           <Button
             variant="primary"

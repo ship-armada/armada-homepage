@@ -1,10 +1,16 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/use-cases-3", "destination": "/use-cases-2", "permanent": true },
+    { "source": "/use-cases-4", "destination": "/use-cases", "permanent": true }
+  ],
   "routes": [
     { "src": "^/homepage/?$", "dest": "/homepage.html" },
     { "src": "^/homepage[2-5]/?$", "dest": "/homepage.html" },
     { "src": "^/about/?$", "dest": "/about.html" },
+    { "src": "^/use-cases/?$", "dest": "/use-cases.html" },
+    { "src": "^/use-cases-2/?$", "dest": "/use-cases-2.html" },
     { "src": "^/systemdocs/?$", "dest": "/systemdocs.html" },
     { "src": "^/$", "dest": "/index.html" }
   ]

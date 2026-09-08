@@ -76,7 +76,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'use-cases',
     label: 'Use cases',
-    href: '#use-cases',
+    href: '/use-cases',
   },
   {
     id: 'developers',

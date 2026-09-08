@@ -1,0 +1,161 @@
+.section {
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  /* Pull up into the MPC card’s section-gap so the net space is ~80px. */
+  margin-top: calc(var(--primitives-spacing-20) - var(--about-section-gap));
+  padding: 0 var(--about-pad-x) var(--about-section-pad-y);
+  color: var(--semantic-color-text-primary);
+}
+
+.layout {
+  --detail-gutter: var(--primitives-spacing-20);
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--about-stack-max);
+}
+
+.row {
+  --row-rule: color-mix(in srgb, var(--semantic-color-text-primary) 28%, transparent);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--detail-gutter);
+  align-items: start;
+  width: 100%;
+  border-top: calc(var(--primitives-borderWidth-default) * 1px) solid var(--row-rule);
+  border-bottom: calc(var(--primitives-borderWidth-default) * 1px) solid var(--row-rule);
+}
+
+.row + .row {
+  border-top: none;
+}
+
+.rowHead {
+  grid-column: 1;
+  margin: 0;
+  font: inherit;
+}
+
+.rowButton {
+  display: flex;
+  align-items: center;
+  gap: var(--primitives-spacing-2);
+  width: 100%;
+  min-height: var(--primitives-spacing-11);
+  padding: var(--primitives-spacing-16) 0;
+  border-radius: calc(var(--primitives-borderRadius-md) * 1px);
+  color: var(--semantic-color-text-secondary);
+  text-align: left;
+  transition: color 200ms ease;
+}
+
+.rowButton:focus-visible {
+  outline: 2px solid var(--semantic-color-border-focus);
+  outline-offset: var(--primitives-spacing-1);
+}
+
+.rowLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-family: var(--semantic-typography-ui-heading-lg-font-family), sans-serif;
+  font-size: calc(var(--primitives-fontSize-3xl) * 1px);
+  font-weight: var(--primitives-fontWeight-regular);
+  line-height: var(--primitives-lineHeight-snug);
+  letter-spacing: var(--semantic-typography-ui-heading-lg-letter-spacing);
+}
+
+.row[data-active] .rowButton {
+  color: var(--semantic-color-text-primary);
+}
+
+.row[data-active] .rowTitle {
+  font-weight: var(--primitives-fontWeight-bold);
+}
+
+.rowChevron {
+  flex-shrink: 0;
+  width: var(--primitives-spacing-6);
+  height: var(--primitives-spacing-6);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.row[data-active] .rowChevron {
+  opacity: 1;
+}
+
+.panel {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitives-spacing-4);
+  padding: var(--primitives-spacing-16) 0;
+}
+
+/* Win over `.panel { display: flex }` so inactive rows stay closed. */
+.panel[hidden] {
+  display: none;
+}
+
+.body {
+  margin: 0;
+  color: var(--semantic-color-text-secondary);
+  text-wrap: pretty;
+}
+
+@media (max-width: 1199px) {
+  .layout {
+    --detail-gutter: var(--primitives-spacing-10);
+  }
+
+  .rowTitle {
+    font-size: calc(var(--primitives-fontSize-2xl) * 1px);
+  }
+}
+
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rowButton {
+    padding-block: var(--primitives-spacing-8);
+  }
+
+  /* Keep title→copy tight; don’t inherit the full row pad under the label. */
+  .row[data-active] .rowButton {
+    padding-bottom: var(--primitives-spacing-3);
+  }
+
+  .panel {
+    grid-column: 1;
+    gap: var(--primitives-spacing-3);
+    /* Match closed/open row top padding. */
+    padding: 0 0 var(--primitives-spacing-8);
+  }
+
+  .rowChevron {
+    margin-left: auto;
+    transform: rotate(90deg);
+    opacity: 0.4;
+  }
+
+  .rowTitle {
+    font-size: calc(var(--primitives-fontSize-xl) * 1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowButton,
+  .rowChevron {
+    transition: none;
+  }
+}

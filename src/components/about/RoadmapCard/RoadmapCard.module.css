@@ -111,6 +111,10 @@
   text-wrap: pretty;
 }
 
+.stageLead {
+  font-weight: var(--primitives-fontWeight-semibold);
+}
+
 .stageButton {
   display: block;
   width: 100%;

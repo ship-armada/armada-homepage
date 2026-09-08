@@ -1,0 +1,1 @@
+export { ShieldedMpcCard } from './ShieldedMpcCard'
