@@ -31,14 +31,14 @@
 .title {
   margin: 0;
   width: 100%;
-  max-width: calc(var(--primitives-spacing-20) * 12);
+  max-width: calc(var(--primitives-spacing-20) * 10);
   text-wrap: balance;
 }
 
 .body {
   margin: 0;
   width: 100%;
-  max-width: calc(var(--primitives-spacing-20) * 7);
+  max-width: calc(var(--primitives-spacing-20) * 6 + var(--primitives-spacing-11));
   color: var(--semantic-color-text-secondary);
   text-wrap: pretty;
 }

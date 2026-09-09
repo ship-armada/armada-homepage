@@ -1,23 +1,32 @@
 .section {
+  /*
+    Same horizontal inset as ShieldedMpcCard / WhatArmadaIsNot:
+    page pad on narrow; centered stack edge when the viewport is wider.
+  */
+  --slider-inline: max(
+    var(--about-pad-x),
+    calc((100vw - var(--about-stack-max)) / 2)
+  );
+
   display: flex;
   flex-direction: column;
   gap: var(--primitives-spacing-4);
   box-sizing: border-box;
   width: 100%;
-  /* Vertical rhythm comes from WhatArmadaIsNot’s top gap — match UseCaseGroups. */
   padding: 0;
   color: var(--semantic-color-text-primary);
 }
 
-/* Title left / arrows right — same full-bleed pad as the card track (no max-width). */
+/* Tag left / arrows right — flush with the page stack edges. */
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--primitives-spacing-4);
   box-sizing: border-box;
-  width: 100%;
-  padding-inline: var(--about-pad-x);
+  width: calc(100% - (2 * var(--slider-inline)));
+  max-width: var(--about-stack-max);
+  margin-inline: var(--slider-inline);
 }
 
 .heading {
@@ -36,7 +45,7 @@
   width: 100%;
 }
 
-/* Cards keep the page side pad so they align with MCP / callouts. */
+/* First card lines up with the stack; track may still peek on the right. */
 .track {
   --slider-gap: var(--primitives-spacing-4);
 
@@ -46,16 +55,12 @@
   gap: var(--slider-gap);
   list-style: none;
   margin: 0;
-  padding-inline: var(--about-pad-x);
-  /* Peek the next card past the stack edge on wide screens. */
-  padding-right: max(
-    var(--about-pad-x),
-    calc((100vw - var(--about-stack-max)) / 2 + var(--about-pad-x))
-  );
+  padding-left: var(--slider-inline);
+  padding-right: var(--about-pad-x);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: var(--about-pad-x);
+  scroll-padding-inline: var(--slider-inline);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -79,12 +84,6 @@
 
 .slide > * {
   height: 100%;
-}
-
-@media (max-width: 767px) {
-  .track {
-    padding-right: var(--about-pad-x);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

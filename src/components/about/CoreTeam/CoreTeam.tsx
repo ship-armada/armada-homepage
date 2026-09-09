@@ -1,5 +1,4 @@
 import { useId, useState } from 'react'
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
 import { cascadeStyle, RevealStack } from '@/components/ScrollReveal'
 import { CORE_TEAM, type TeamSocial } from '@/constants/aboutContent'
 import { SocialIcon } from '@/icons/SocialIcon'
@@ -95,7 +94,6 @@ export function CoreTeam() {
                   onClick={() => setActiveIndex(index)}
                 >
                   <span className={styles.memberName}>{member.name}</span>
-                  <ChevronRightIcon className={styles.memberChevron} aria-hidden />
                 </button>
               </h3>
 

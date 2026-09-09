@@ -5,9 +5,24 @@
   EXCEPTION — traveler blur 7px (PrivacySphere).
 */
 
-.viewport {
+/* Fills the diagram pane — pause insets are measured from this box. */
+.root {
   position: absolute;
   inset: 0;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.viewport {
+  position: absolute;
+  /*
+    Vertical safe inset only — side padding clips the flow strokes.
+    --diagram-safe from .diagram (ShieldedMpcCard).
+  */
+  top: var(--diagram-safe, 0px);
+  right: 0;
+  bottom: var(--diagram-safe, 0px);
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -16,6 +31,29 @@
   width: auto;
   height: auto;
   min-height: 0;
+}
+
+.pauseIcon {
+  position: absolute;
+  top: var(--primitives-spacing-3);
+  right: var(--primitives-spacing-3);
+  z-index: 20;
+  box-sizing: border-box;
+  width: var(--primitives-spacing-10);
+  height: var(--primitives-spacing-10);
+  padding: var(--primitives-spacing-2);
+  border-radius: calc(var(--primitives-borderRadius-full) * 1px);
+  /* EXCEPTION — white 10% fill on brand-deep. */
+  background: color-mix(in srgb, #ffffff 10%, transparent);
+  color: #ffffff;
+  stroke-width: 1.75;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+
+.root[data-paused] .pauseIcon {
+  opacity: 1;
 }
 
 .stage {
@@ -31,8 +69,8 @@
   flex: 0 0 auto;
   display: grid;
   grid-template-columns:
-    calc(220 * var(--s) * 1px)
     calc(280 * var(--s) * 1px)
+    calc(340 * var(--s) * 1px)
     max-content;
   grid-template-rows: minmax(0, 1fr);
   grid-template-areas: 'wallet sphere dest';
@@ -45,6 +83,11 @@
   isolation: isolate;
   transition: transform 900ms var(--slide-ease);
   will-change: transform;
+  pointer-events: none;
+}
+
+.stage[data-paused] {
+  transition: none;
 }
 
 .connectors {
@@ -128,10 +171,11 @@
 .wallet {
   grid-area: wallet;
   justify-self: center;
-  width: calc(220 * var(--s) * 1px);
+  width: calc(280 * var(--s) * 1px);
   display: flex;
   flex-direction: column;
-  gap: calc(10 * var(--s) * 1px);
+  align-items: center;
+  gap: calc(12 * var(--s) * 1px);
 }
 
 .nodeEyebrow {
@@ -145,6 +189,29 @@
   text-align: center;
 }
 
+/*
+  One frame around the three rows (not three separate containers).
+  Concentric corners: outer radius = card radius + frame padding.
+  EXCEPTION — soft white wash on brand-deep (no stroke).
+*/
+.walletFrame {
+  --wallet-pad: calc(16 * var(--s) * 1px);
+  --wallet-card-r: 20px;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: var(--wallet-pad);
+  border: none;
+  border-radius: calc(var(--wallet-card-r) + var(--wallet-pad));
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--mpc-label) 20%, transparent),
+    color-mix(in srgb, var(--mpc-label) 5%, transparent)
+  );
+}
+
 .walletStack {
   display: flex;
   flex-direction: column;
@@ -154,39 +221,70 @@
   padding: 0;
 }
 
-.walletPill {
+/*
+  Compact white row + purple thumb — same look as before the Figma resize.
+  EXCEPTION — white fill on brand-deep.
+*/
+.walletCard {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: calc(10 * var(--s) * 1px);
   box-sizing: border-box;
   width: 100%;
-  padding: calc(11 * var(--s) * 1px) calc(14 * var(--s) * 1px);
-  border-radius: calc(999 * var(--s) * 1px);
-  border: 1px solid color-mix(in srgb, var(--semantic-color-brand-lavender) 35%, transparent);
-  background: color-mix(in srgb, var(--semantic-color-brand-lavender) 10%, transparent);
-  color: color-mix(in srgb, var(--semantic-color-brand-lavender) 75%, var(--mpc-label));
-  font-family: var(--primitives-fontFamily-ui), sans-serif;
-  font-size: calc(13 * var(--s) * 1px);
-  font-weight: var(--primitives-fontWeight-medium);
-  line-height: var(--primitives-lineHeight-snug);
+  padding: calc(8 * var(--s) * 1px) calc(10 * var(--s) * 1px);
+  border-radius: var(--wallet-card-r);
+  background: var(--mpc-label);
+  color: var(--mpc-ink);
+  box-shadow: 0 calc(3 * var(--s) * 1px) calc(10 * var(--s) * 1px)
+    color-mix(in srgb, black 32%, transparent);
+}
+
+.walletIconTile {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: calc(36 * var(--s) * 1px);
+  height: calc(36 * var(--s) * 1px);
+  border-radius: 10px;
+  background: var(--primitives-color-purple-100);
+  color: var(--mpc-ink);
 }
 
 .walletIcon {
-  flex-shrink: 0;
   width: calc(18 * var(--s) * 1px);
   height: calc(18 * var(--s) * 1px);
   stroke-width: 1.5;
-  color: var(--semantic-color-brand-lavender);
 }
 
-.sphereSlot {
+.walletTitle {
+  margin: 0;
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-size: calc(var(--primitives-fontSize-base) * var(--s) * 1px);
+  font-weight: var(--primitives-fontWeight-semibold);
+  line-height: var(--primitives-lineHeight-snug);
+  color: var(--mpc-ink);
+  white-space: nowrap;
+}
+
+.sphere {
   grid-area: sphere;
   position: relative;
   z-index: 4;
-  width: calc(280 * var(--s) * 1px);
-  height: calc(280 * var(--s) * 1px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(12 * var(--s) * 1px);
   isolation: isolate;
+}
+
+.sphereSlot {
+  position: relative;
+  width: calc(340 * var(--s) * 1px);
+  height: calc(340 * var(--s) * 1px);
+  overflow: visible;
 }
 
 .canvasHost {
@@ -203,100 +301,296 @@
   height: 100%;
 }
 
-.privacyPills {
+/* Anchored under the sphere — same pattern as selective disclosure under dest. */
+.privacy {
+  --privacy-rise: calc(14 * var(--s) * 1px);
+  --privacy-entry-delay: 1000ms;
+  --privacy-cascade-step: 90ms;
+
   position: absolute;
-  inset: 20% 16% 18%;
   z-index: 8;
+  left: 50%;
+  right: auto;
+  top: 100%;
+  bottom: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: calc(8 * var(--s) * 1px);
-  list-style: none;
-  margin: 0;
+  gap: calc(10 * var(--s) * 1px);
+  width: max-content;
+  margin: calc(10 * var(--s) * 1px) 0 0;
   padding: 0;
-  opacity: 0;
-  transform: translateZ(0);
-  transition: opacity 450ms var(--fade-ease);
+  transform: translate3d(-50%, 0, 0);
   pointer-events: none;
 }
 
-.privacyOn {
-  opacity: 1;
+.privacyTitle {
+  opacity: 0;
+  transform: translate3d(0, var(--privacy-rise), 0);
+  transition:
+    opacity 480ms var(--fade-ease),
+    transform 480ms var(--slide-ease);
+  transition-delay: 0ms;
 }
 
-.privacyPills li {
-  width: 100%;
-  padding: calc(8 * var(--s) * 1px) calc(12 * var(--s) * 1px);
-  border-radius: calc(999 * var(--s) * 1px);
-  background: color-mix(in srgb, var(--mpc-ink) 90%, transparent);
-  color: var(--mpc-label);
+.privacyCards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: calc(8 * var(--s) * 1px);
+  width: max-content;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.privacyCards li {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  padding: calc(8 * var(--s) * 1px) calc(10 * var(--s) * 1px);
+  border-radius: calc(var(--primitives-borderRadius-3xl) * 1px);
+  border: none;
+  background: var(--primitives-color-purple-300);
+  color: var(--mpc-ink);
   font-family: var(--primitives-fontFamily-ui), sans-serif;
-  font-size: calc(11 * var(--s) * 1px);
+  font-size: calc(10 * var(--s) * 1px);
   font-weight: var(--primitives-fontWeight-medium);
   line-height: var(--primitives-lineHeight-snug);
   text-align: center;
-  box-shadow: 0 calc(3 * var(--s) * 1px) calc(10 * var(--s) * 1px)
-    color-mix(in srgb, black 40%, transparent);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate3d(0, var(--privacy-rise), 0);
+  transition:
+    opacity 480ms var(--fade-ease),
+    transform 480ms var(--slide-ease);
+  transition-delay: 0ms;
+}
+
+.privacyOn .privacyTitle {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: var(--privacy-entry-delay);
+}
+
+.privacyOn .privacyCards li {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  /* 1s hold after pool focus, then cascade first → last. */
+  transition-delay: calc(
+    var(--privacy-entry-delay) + (1 + var(--privacy-cascade, 0)) *
+      var(--privacy-cascade-step)
+  );
 }
 
 .dest {
   grid-area: dest;
+  position: relative;
+  z-index: 4;
   justify-self: center;
-  min-width: calc(260 * var(--s) * 1px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Match wallet cards: wallet col 280 − frame pad 16×2 */
+  width: calc(248 * var(--s) * 1px);
+  isolation: isolate;
+  overflow: visible;
 }
 
+/*
+  Same height as sphereSlot so disclosure sits in the Armada bottom band.
+  Title + cards group in .destBody so the eyebrow stays tight to the stack.
+*/
+.destSlot {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(340 * var(--s) * 1px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: visible;
+}
+
+.destBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(12 * var(--s) * 1px);
+  width: 100%;
+}
+
+.destStack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: calc(10 * var(--s) * 1px);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+  Same white + purple-thumb treatment as institutional wallet rows.
+  EXCEPTION — white fill on brand-deep.
+*/
 .destPill {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: calc(10 * var(--s) * 1px);
   box-sizing: border-box;
-  width: max-content;
-  max-width: none;
-  padding: calc(12 * var(--s) * 1px) calc(14 * var(--s) * 1px);
-  border-radius: calc(999 * var(--s) * 1px);
+  width: 100%;
+  padding: calc(8 * var(--s) * 1px) calc(10 * var(--s) * 1px);
+  border-radius: 20px;
   background: var(--mpc-label);
   color: var(--mpc-ink);
+  box-shadow: 0 calc(3 * var(--s) * 1px) calc(10 * var(--s) * 1px)
+    color-mix(in srgb, black 32%, transparent);
+}
+
+.destIconTile {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: calc(36 * var(--s) * 1px);
+  height: calc(36 * var(--s) * 1px);
+  border-radius: 10px;
+  background: var(--primitives-color-purple-100);
+  color: var(--mpc-ink);
+}
+
+.destIcon {
+  width: calc(18 * var(--s) * 1px);
+  height: calc(18 * var(--s) * 1px);
+  stroke-width: 1.5;
+}
+
+.destTitle {
+  margin: 0;
   font-family: var(--primitives-fontFamily-ui), sans-serif;
-  font-size: calc(12 * var(--s) * 1px);
+  font-size: calc(var(--primitives-fontSize-base) * var(--s) * 1px);
+  font-weight: var(--primitives-fontWeight-semibold);
+  line-height: var(--primitives-lineHeight-snug);
+  color: var(--mpc-ink);
+  white-space: nowrap;
+}
+
+/* Anchored under destSlot — same bottom band as Armada under sphereSlot. */
+.disclosure {
+  --disclosure-rise: calc(14 * var(--s) * 1px);
+  --disclosure-entry-delay: 1600ms;
+  --disclosure-cascade-step: 90ms;
+
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  right: auto;
+  top: 100%;
+  bottom: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(10 * var(--s) * 1px);
+  width: max-content;
+  margin: calc(10 * var(--s) * 1px) 0 0;
+  padding: 0;
+  transform: translate3d(-50%, 0, 0);
+  pointer-events: none;
+}
+
+.disclosureTitle {
+  /* Type comes from .nodeEyebrow — this only handles enter motion. */
+  opacity: 0;
+  transform: translate3d(0, var(--disclosure-rise), 0);
+  transition:
+    opacity 480ms var(--fade-ease),
+    transform 480ms var(--slide-ease);
+  transition-delay: 0ms;
+}
+
+.disclosurePills {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: calc(8 * var(--s) * 1px);
+  width: max-content;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disclosurePills li {
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: calc(6 * var(--s) * 1px);
+  box-sizing: border-box;
+  padding: calc(8 * var(--s) * 1px) calc(10 * var(--s) * 1px);
+  border-radius: calc(var(--primitives-borderRadius-3xl) * 1px);
+  border: none;
+  background: var(--primitives-color-purple-300);
+  color: var(--mpc-ink);
+  font-family: var(--primitives-fontFamily-ui), sans-serif;
+  font-size: calc(10 * var(--s) * 1px);
   font-weight: var(--primitives-fontWeight-medium);
   line-height: var(--primitives-lineHeight-snug);
   white-space: nowrap;
-  box-shadow: 0 calc(4 * var(--s) * 1px) calc(14 * var(--s) * 1px)
-    color-mix(in srgb, black 35%, transparent);
+  opacity: 0;
+  transform: translate3d(0, var(--disclosure-rise), 0);
+  transition:
+    opacity 480ms var(--fade-ease),
+    transform 480ms var(--slide-ease);
+  transition-delay: 0ms;
 }
 
-.tokenCluster {
-  position: relative;
+.disclosureIcon {
   display: inline-flex;
   flex-shrink: 0;
-  width: calc(24 * var(--s) * 1px);
-  height: calc(24 * var(--s) * 1px);
+  width: calc(14 * var(--s) * 1px);
+  height: calc(14 * var(--s) * 1px);
+  color: inherit;
 }
 
-.usdc {
-  display: block;
+.disclosureIcon svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  stroke-width: 1.5;
 }
 
-.plusBadge {
-  position: absolute;
-  right: calc(-3 * var(--s) * 1px);
-  bottom: calc(-2 * var(--s) * 1px);
-  width: calc(12 * var(--s) * 1px);
-  height: calc(12 * var(--s) * 1px);
-  border-radius: 50%;
-  background: var(--semantic-color-brand-gradient-rose);
-  box-shadow: 0 0 0 1.5px var(--mpc-label);
+.disclosureOn .disclosureTitle {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: var(--disclosure-entry-delay);
+}
+
+.disclosureOn .disclosurePills li {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: calc(
+    var(--disclosure-entry-delay) + (1 + var(--disclosure-cascade, 0)) *
+      var(--disclosure-cascade-step)
+  );
 }
 
 .stage[data-reduced] .node,
-.stage[data-reduced] .privacyPills {
+.stage[data-reduced] .privacyTitle,
+.stage[data-reduced] .privacyCards li,
+.stage[data-reduced] .disclosureTitle,
+.stage[data-reduced] .disclosurePills li {
   opacity: 1;
   filter: none;
+  transform: none;
+  transition: none;
 }
 
 .stage[data-reduced] .traveler {
@@ -309,7 +603,10 @@
   }
 
   .node,
-  .privacyPills,
+  .privacyTitle,
+  .privacyCards li,
+  .disclosureTitle,
+  .disclosurePills li,
   .stroke {
     transition: none;
   }

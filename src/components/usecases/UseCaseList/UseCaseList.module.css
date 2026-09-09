@@ -80,18 +80,6 @@
   font-weight: var(--primitives-fontWeight-bold);
 }
 
-.rowChevron {
-  flex-shrink: 0;
-  width: var(--primitives-spacing-6);
-  height: var(--primitives-spacing-6);
-  opacity: 0;
-  transition: opacity 200ms ease;
-}
-
-.row[data-active] .rowChevron {
-  opacity: 1;
-}
-
 .panel {
   grid-column: 2;
   display: flex;
@@ -142,20 +130,13 @@
     padding: 0 0 var(--primitives-spacing-8);
   }
 
-  .rowChevron {
-    margin-left: auto;
-    transform: rotate(90deg);
-    opacity: 0.4;
-  }
-
   .rowTitle {
     font-size: calc(var(--primitives-fontSize-xl) * 1px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rowButton,
-  .rowChevron {
+  .rowButton {
     transition: none;
   }
 }
