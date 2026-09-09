@@ -98,6 +98,8 @@
 .diagram {
   /* EXCEPTION — homepage diagram stroke on brand-deep panes (no token). */
   --diagram-stroke: #5a4a62;
+  /* Vertical viewport inset only — side padding clips flow strokes. */
+  --diagram-safe: var(--primitives-spacing-6);
 
   flex: 1 1 0;
   position: relative;
@@ -136,6 +138,7 @@
       Square pane inset equally on L/R/B.
       Explicit width calc — width:100% + horizontal margin overflows and clips right.
     */
+    --diagram-safe: var(--primitives-spacing-5);
     flex: 0 0 auto;
     align-self: center;
     box-sizing: border-box;

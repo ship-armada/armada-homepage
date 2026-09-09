@@ -14,7 +14,7 @@
   gap: var(--primitives-spacing-10);
   width: min(
     var(--use-case-card-max),
-    calc(100vw - var(--about-pad-x) - var(--use-case-card-peek))
+    calc(100vw - var(--slider-inline, var(--about-pad-x)) - var(--use-case-card-peek))
   );
   max-width: 100%;
   min-height: var(--use-case-card-min-h);

@@ -86,18 +86,6 @@
   font-weight: var(--primitives-fontWeight-bold);
 }
 
-.memberChevron {
-  flex-shrink: 0;
-  width: var(--primitives-spacing-6);
-  height: var(--primitives-spacing-6);
-  opacity: 0;
-  transition: opacity 200ms ease;
-}
-
-.member[data-active] .memberChevron {
-  opacity: 1;
-}
-
 .panel {
   grid-column: 2;
   /* Matches the name’s padding so both columns start on the same line. */
@@ -160,17 +148,10 @@
     grid-column: 1;
     padding: 0 0 var(--primitives-spacing-5);
   }
-
-  .memberChevron {
-    margin-left: auto;
-    transform: rotate(90deg);
-    opacity: 0.4;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .memberButton,
-  .memberChevron,
   .socialLink {
     transition: none;
   }

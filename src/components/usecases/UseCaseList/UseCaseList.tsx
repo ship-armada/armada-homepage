@@ -1,5 +1,4 @@
 import { useId, useState } from 'react'
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
 import { cascadeStyle, RevealStack } from '@/components/ScrollReveal'
 import { USE_CASE_CARDS } from '@/constants/useCasesContent'
 import styles from './UseCaseList.module.css'
@@ -39,7 +38,6 @@ export function UseCaseList() {
                   <span className={styles.rowLabel}>
                     <span className={styles.rowTitle}>{card.title}</span>
                   </span>
-                  <ChevronRightIcon className={styles.rowChevron} aria-hidden />
                 </button>
               </h2>
 
