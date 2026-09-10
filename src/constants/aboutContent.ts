@@ -11,9 +11,9 @@ export type RoadmapStage = {
 }
 
 export type TeamSocial = {
-  label: 'LinkedIn' | 'X'
+  label: 'X'
   href: string
-  icon: 'linkedin' | 'x'
+  icon: 'x'
 }
 
 export type TeamMember = {
@@ -27,8 +27,7 @@ export type SupportersParagraph =
   | { lead: string; body: string }
   | { body: string }
 
-const teamSocials = (linkedin: string, x: string): TeamSocial[] => [
-  { label: 'LinkedIn', href: linkedin, icon: 'linkedin' },
+const teamSocials = (x: string): TeamSocial[] => [
   { label: 'X', href: x, icon: 'x' },
 ]
 
@@ -83,43 +82,37 @@ export const CORE_TEAM = {
       id: 'gavin',
       name: 'Gavin Birch',
       bio: 'Gavin Birch leads Armada’s vision and launch. Previously part of the founding teams at Figment and Figment Capital, and an angel investor in 50+ projects. He later bootstrapped Knowable, a technical team that has supported privacy projects for more than three years. A long-time privacy power user, he is building the product he wants to use himself.',
-      socials: teamSocials(
-        'https://www.linkedin.com/in/gavin-birch-74729918b',
-        'https://x.com/Ether_Gavin',
-      ),
+      socials: teamSocials('https://x.com/Ether_Gavin'),
     },
     {
       id: 'andrew',
       name: 'Andrew',
       bio: 'Andrew leads protocol architecture and mission-critical technical operations. Previously worked at a major Web3 foundation on messaging protocols and threshold cryptography. His background spans distributed systems, cryptography, multi-party computation, consensus, state machines, game theory, and economic security.',
-      socials: teamSocials('', ''),
+      socials: teamSocials(''),
     },
     {
       id: 'ian',
       name: 'Ian',
       bio: 'Ian leads protocol implementation. An electrical engineer by training and technical mainstay at Knowable, with hands-on experience in blockchain infrastructure, full-stack development, and cross-chain applications.',
-      socials: teamSocials('', ''),
+      socials: teamSocials(''),
     },
     {
       id: 'cryptodruide',
       name: 'CryptoDruide',
       bio: 'CryptoDruide focuses on strategy, team operations, and community development. A Web3 operator with a background in digital consulting, project management, and entrepreneurship.',
-      socials: teamSocials('', ''),
+      socials: teamSocials(''),
     },
     {
       id: 'diego',
       name: 'Diego',
       bio: 'Diego leads front-end design and Armada’s creative direction. He has worked across crypto and fintech, including work for Aave.',
-      socials: teamSocials(
-        'https://www.linkedin.com/in/diegoprudencio',
-        'https://x.com/diegoprudencio',
-      ),
+      socials: teamSocials('https://x.com/diegoprudencio'),
     },
     {
       id: 'ola',
       name: 'Ola',
       bio: 'Ola leads ecosystem growth and marketing strategy. Over the past decade, she has contributed to projects including Status, Cosmos/Tendermint, Fluence, and Epicenter.',
-      socials: teamSocials('', ''),
+      socials: teamSocials(''),
     },
   ] as TeamMember[],
 }
