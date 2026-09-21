@@ -55,7 +55,7 @@ function IntegrateCta({ className }: { className?: string }) {
       size="lg"
       label="Integrate Armada"
       showIcon={false}
-      href="https://docs.armada.blue"
+      href="https://sdk.armada.blue"
       target="_blank"
       rel="noopener noreferrer"
       className={className}

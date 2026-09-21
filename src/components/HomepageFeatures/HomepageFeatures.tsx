@@ -45,7 +45,7 @@ const INTRO = {
   ctas: [
     {
       label: 'Start building',
-      href: 'https://docs.armada.blue/guide/getting-started',
+      href: 'https://sdk.armada.blue/guide/getting-started',
       external: true,
       variant: 'primary' as const,
     },
@@ -74,7 +74,7 @@ const FEATURES: Block[] = [
     ctas: [
       {
         label: 'Review docs',
-        href: 'https://docs.armada.blue/',
+        href: 'https://sdk.armada.blue/',
         external: true,
         variant: 'primary',
       },
@@ -88,7 +88,7 @@ const FEATURES: Block[] = [
     ctas: [
       {
         label: 'Explore protocol',
-        href: 'https://docs.armada.blue/',
+        href: 'https://sdk.armada.blue/',
         external: true,
         variant: 'primary',
       },

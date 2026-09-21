@@ -136,7 +136,7 @@ export const BUILD_WITH_ARMADA = {
   ctas: [
     {
       label: 'Start building',
-      href: 'https://docs.armada.blue/guide/getting-started',
+      href: 'https://sdk.armada.blue/guide/getting-started',
       external: true,
       variant: 'primary',
     },
