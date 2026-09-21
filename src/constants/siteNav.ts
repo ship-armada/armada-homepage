@@ -87,13 +87,13 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'security',
     label: 'Security',
-    href: 'https://sdk.armada.blue/guide/security',
+    href: 'https://docs.armada.blue/crypto/privacy',
     external: true,
   },
   {
     id: 'protocol',
     label: 'Protocol',
-    href: 'https://sdk.armada.blue/',
+    href: 'https://docs.armada.blue/',
     external: true,
   },
   {

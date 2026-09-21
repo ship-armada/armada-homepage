@@ -29,7 +29,7 @@ export const USE_CASES_HERO = {
   body: 'Designed to disappear into existing products and services, Armada gives platforms and organizations a private way to hold and move USDC on-chain.',
   cta: {
     label: 'Explore integrations',
-    href: 'https://sdk.armada.blue/',
+    href: 'https://docs.armada.blue/build',
     external: true,
   },
 }
@@ -43,7 +43,7 @@ export const SHIELDED_MPC = {
   body: 'Institutional wallets handle approvals, policies and MPC signing. Armada adds private balances, counterparties and transaction relationships for on-chain operations.',
   cta: {
     label: 'Explore integrations',
-    href: 'https://sdk.armada.blue/',
+    href: 'https://docs.armada.blue/build',
     external: true,
   },
   diagramLabel: 'How Armada works with institutional wallets and selective disclosure',
@@ -128,7 +128,7 @@ export const USE_CASES_BUILD = {
   ctas: [
     {
       label: 'Start building',
-      href: 'https://sdk.armada.blue/guide/getting-started',
+      href: 'https://sdk.armada.blue/',
       external: true,
       variant: 'primary' as const,
     },
