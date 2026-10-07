@@ -1,0 +1,97 @@
+.trigger {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--primitives-spacing-11);
+  height: var(--primitives-spacing-11);
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--primitives-borderRadius-full) * 1px);
+  background: var(--semantic-component-button-primary-bg);
+  color: var(--semantic-component-button-primary-text);
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--semantic-component-button-primary-bg-hover);
+}
+
+.trigger:active {
+  background: var(--semantic-component-button-primary-bg-active);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--semantic-color-border-focus);
+  outline-offset: 2px;
+}
+
+.menu {
+  position: fixed;
+  z-index: 130;
+  min-width: calc(var(--primitives-spacing-20) * 2 + var(--primitives-spacing-10));
+  margin: 0;
+  padding: var(--primitives-spacing-2);
+  list-style: none;
+  background: var(--semantic-color-surface-default);
+  border: calc(var(--primitives-borderWidth-default) * 1px) solid var(--semantic-color-border-default);
+  border-radius: calc(var(--primitives-borderRadius-xl) * 1px);
+  box-shadow:
+    0 var(--primitives-spacing-2) var(--primitives-spacing-8)
+      color-mix(in srgb, var(--primitives-color-neutral-800) 12%, transparent);
+  visibility: hidden;
+}
+
+.menu[data-placed='true'] {
+  visibility: visible;
+  animation: menuIn calc(var(--semantic-motion-theme) / 2) ease;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--primitives-spacing-1);
+  width: 100%;
+  min-height: var(--primitives-spacing-11);
+  padding: var(--primitives-spacing-3) var(--primitives-spacing-4);
+  border-radius: calc(var(--semantic-borderRadius-item) * 1px);
+  color: var(--semantic-color-text-primary);
+  text-decoration: none;
+}
+
+.item:hover,
+.item:focus {
+  background: color-mix(in srgb, var(--semantic-color-brand-lavender) 14%, transparent);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--semantic-color-border-focus);
+  outline-offset: 2px;
+}
+
+.itemLabel {
+  color: var(--semantic-color-text-primary);
+}
+
+.itemSize {
+  color: var(--semantic-color-text-secondary);
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(var(--primitives-spacing-1));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu[data-placed='true'] {
+    animation: none;
+  }
+}

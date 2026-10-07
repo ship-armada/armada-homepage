@@ -1,5 +1,5 @@
 import type { ComponentType, SVGProps } from 'react'
-import { NewspaperIcon } from '@heroicons/react/24/outline'
+import { NewspaperIcon, SwatchIcon } from '@heroicons/react/24/outline'
 import { GitHubIcon } from '@/icons/GitHubIcon'
 
 export type NavIcon = ComponentType<SVGProps<SVGSVGElement>>
@@ -50,7 +50,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ]
 
 /**
- * Footer sitemap: direct nav links + menu children (Blog, GitHub).
+ * Footer sitemap: direct nav links + menu children (Brand, Blog, GitHub).
  * GitHub also appears as a social icon next to Discord / X.
  */
 export function getFooterNavLinks(): NavLink[] {
@@ -100,6 +100,13 @@ export const NAV_ITEMS: NavItem[] = [
     id: 'resources',
     label: 'Resources',
     items: [
+      {
+        id: 'brand',
+        title: 'Brand',
+        description: 'Logos, colors, and fleet imagery',
+        href: '/brand',
+        icon: SwatchIcon,
+      },
       {
         id: 'blog',
         title: 'Blog',

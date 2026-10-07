@@ -295,7 +295,6 @@ export function SiteHeader({ tone = 'media' }: SiteHeaderProps = {}) {
             ref={navRef}
             className={styles.desktopNav}
             aria-label="Primary"
-            onMouseLeave={scheduleClose}
           >
             <ul className={styles.navList}>
               {NAV_ITEMS.map((item) => {
@@ -322,6 +321,7 @@ export function SiteHeader({ tone = 'media' }: SiteHeaderProps = {}) {
                     key={item.id}
                     className={styles.navItem}
                     onMouseEnter={() => scheduleOpen(item.id)}
+                    onMouseLeave={scheduleClose}
                   >
                     <button
                       type="button"
@@ -337,6 +337,16 @@ export function SiteHeader({ tone = 'media' }: SiteHeaderProps = {}) {
                       onFocus={() => {
                         clearTimers()
                         setOpenMenuId(item.id)
+                      }}
+                      onBlur={(e) => {
+                        const next = e.relatedTarget
+                        if (
+                          next instanceof Node &&
+                          e.currentTarget.parentElement?.contains(next)
+                        ) {
+                          return
+                        }
+                        scheduleClose()
                       }}
                     >
                       {item.label}

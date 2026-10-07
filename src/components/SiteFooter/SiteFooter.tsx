@@ -6,7 +6,7 @@ import wordmarkWhite from '@/assets/armada-wordmark-white.svg'
 import styles from './SiteFooter.module.css'
 
 /**
- * Footer sitemap: direct nav links + Resources children (Blog, GitHub).
+ * Footer sitemap: direct nav links + Resources children (Brand, Blog, GitHub).
  * GitHub also appears with Discord / X as a social icon.
  */
 const FOOTER_LINKS = getFooterNavLinks()

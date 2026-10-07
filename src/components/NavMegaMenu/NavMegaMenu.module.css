@@ -17,6 +17,16 @@
   color: var(--semantic-color-text-primary);
 }
 
+/* Bridge the visual gap so hover isn’t lost between trigger and panel. */
+.panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: var(--primitives-spacing-3);
+}
+
 .list {
   list-style: none;
   margin: 0;

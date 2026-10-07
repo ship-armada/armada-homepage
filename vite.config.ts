@@ -28,6 +28,7 @@ export default defineConfig({
     react(),
     cleanUrls({
       '/about': '/about.html',
+      '/brand': '/brand.html',
       '/use-cases': '/use-cases.html',
       '/use-cases-2': '/use-cases-2.html',
       '/homepage': '/homepage.html',
@@ -45,6 +46,7 @@ export default defineConfig({
         index: resolve(__dirname, 'index.html'),
         homepage: resolve(__dirname, 'homepage.html'),
         about: resolve(__dirname, 'about.html'),
+        brand: resolve(__dirname, 'brand.html'),
         useCases: resolve(__dirname, 'use-cases.html'),
         useCases2: resolve(__dirname, 'use-cases-2.html'),
         systemdocs: resolve(__dirname, 'systemdocs.html'),
