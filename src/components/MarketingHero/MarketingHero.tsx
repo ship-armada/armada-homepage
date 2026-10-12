@@ -11,7 +11,7 @@ import { HeroUsdcSpinner } from './HeroUsdcSpinner'
 import styles from './MarketingHero.module.css'
 
 /** Bottom-aligned hero layout (production). */
-const HEADING_LINES = ['Pluggable privacy', 'infrastructure for stablecoins'] as const
+const HEADING_LINES = ['Plug-in privacy', 'infrastructure for stablecoins'] as const
 
 const FEATURE_COPY_LEAD = 'Stablecoins are exposed by default.'
 const FEATURE_COPY_BODY =
