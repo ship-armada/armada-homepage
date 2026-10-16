@@ -39,4 +39,6 @@ Never hand-edit `typography.css` or `variants.ts`. After changing `semantic.typo
 
 - `npm run dev` → http://localhost:5177/ (marketing homepage)
 - App dashboard → http://localhost:5177/dashboard.html (prod: `/dashboard`)
+- ARM allocation page → http://localhost:5177/allocation.html (prod: https://token.armada.blue, a Netlify domain alias; `/allocation` 301s there)
 - `npm run build` → `npm run tokens:typography && tsc && vite build`
+- `npm test` → Vitest unit and component tests (jsdom)

@@ -3,7 +3,8 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/use-cases-3", "destination": "/use-cases-2", "permanent": true },
-    { "source": "/use-cases-4", "destination": "/use-cases", "permanent": true }
+    { "source": "/use-cases-4", "destination": "/use-cases", "permanent": true },
+    { "source": "/allocation", "destination": "https://token.armada.blue/", "permanent": true }
   ],
   "routes": [
     { "src": "^/homepage/?$", "dest": "/homepage.html" },
