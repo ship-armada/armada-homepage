@@ -2,9 +2,38 @@
 // ABOUTME: Contract reads stay out of this file; they need Ethereum.
 
 import { describe, expect, it } from 'vitest'
-import { decodeStorageAddress, directLedgerRow, formatUsd, schedulePosition, summarizeAllocation } from './armAllocation'
+import {
+  decodeStorageAddress,
+  directLedgerRow,
+  formatUsd,
+  mainnetProvider,
+  mainnetRpcUrl,
+  schedulePosition,
+  summarizeAllocation,
+} from './armAllocation'
 
 const ether = (arm: number) => BigInt(arm) * 10n ** 18n
+
+describe('mainnetRpcUrl', () => {
+  it('defaults to the public node when no override is set', () => {
+    expect(mainnetRpcUrl(undefined)).toBe('https://ethereum-rpc.publicnode.com')
+  })
+
+  it('treats a blank override as unset', () => {
+    expect(mainnetRpcUrl('   ')).toBe('https://ethereum-rpc.publicnode.com')
+  })
+
+  it('uses the override when one is set', () => {
+    expect(mainnetRpcUrl(' https://eth.drpc.org ')).toBe('https://eth.drpc.org')
+  })
+})
+
+describe('mainnetProvider', () => {
+  it('keeps JSON-RPC batches within free-tier limits', () => {
+    // dRPC's free plan rejects batches of more than 3 requests.
+    expect(mainnetProvider('https://eth.drpc.org')._getOption('batchMaxCount')).toBeLessThanOrEqual(3)
+  })
+})
 
 describe('formatUsd', () => {
   it('keeps small amounts exact and compacts large ones', () => {

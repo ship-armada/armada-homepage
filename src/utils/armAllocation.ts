@@ -1,14 +1,28 @@
 // ABOUTME: Ethereum mainnet reads for the public ARM allocation page — RevenueLock plus the reserve distributor.
-// ABOUTME: Reads go to a public mainnet RPC. The direct beneficiary list is read from lock storage.
+// ABOUTME: Reads go to a public mainnet RPC unless VITE_MAINNET_RPC_URL overrides it. Beneficiaries come from lock storage.
 
 import { Contract, FetchRequest, JsonRpcProvider, formatUnits, getAddress, keccak256, toBeHex, zeroPadValue } from 'ethers'
 
 /** Public read-only endpoint. No API key. Same source the original allocation page used. */
-const MAINNET_RPC = 'https://ethereum-rpc.publicnode.com'
+const DEFAULT_MAINNET_RPC = 'https://ethereum-rpc.publicnode.com'
 const MAINNET_CHAIN_ID = 1n
 const BPS = 10_000n
 /** ethers' default fetch timeout is ~300s; cap reads so a wedged RPC fails fast. */
 const RPC_TIMEOUT_MS = 15_000
+/**
+ * ethers folds concurrent calls into batches of up to ~100. Free RPC tiers cap batch size (dRPC
+ * rejects more than 3), and the ledger fans out hundreds of reads, so keep batches small.
+ */
+const RPC_BATCH_MAX = 3
+
+/**
+ * RPC for every mainnet read. VITE_MAINNET_RPC_URL overrides the public node at build time; it ships
+ * in the bundle, so it must not carry a secret (an origin-restricted read-only key is fine).
+ */
+export function mainnetRpcUrl(override: string | undefined = import.meta.env.VITE_MAINNET_RPC_URL): string {
+  const trimmed = override?.trim()
+  return trimmed ? trimmed : DEFAULT_MAINNET_RPC
+}
 
 export const ARM_DISTRIBUTOR = '0x3D2970Efcb93Ca20E6204F67C24496a9e5aB0131'
 export const ARM_DISTRIBUTOR_URL = `https://etherscan.io/address/${ARM_DISTRIBUTOR}`
@@ -232,10 +246,11 @@ export function summarizeAllocation(parts: AllocationParts): AllocationRead {
   }
 }
 
-function timeoutProvider(url: string): JsonRpcProvider {
+/** Provider for `url` with a bounded fetch timeout and small JSON-RPC batches. */
+export function mainnetProvider(url: string): JsonRpcProvider {
   const request = new FetchRequest(url)
   request.timeout = RPC_TIMEOUT_MS
-  return new JsonRpcProvider(request)
+  return new JsonRpcProvider(request, undefined, { batchMaxCount: RPC_BATCH_MAX })
 }
 
 async function readers(): Promise<Readers> {
@@ -249,7 +264,7 @@ async function readers(): Promise<Readers> {
 }
 
 async function connect(): Promise<Readers> {
-  const provider = timeoutProvider(MAINNET_RPC)
+  const provider = mainnetProvider(mainnetRpcUrl())
   const network = await provider.getNetwork()
   if (network.chainId !== MAINNET_CHAIN_ID) {
     throw new Error('RPC is not Ethereum mainnet')
