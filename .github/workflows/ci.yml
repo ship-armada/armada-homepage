@@ -1,5 +1,5 @@
-# ABOUTME: CI workflow that typechecks and builds the site on PRs to main.
-# ABOUTME: Runs npm ci and npm run build (which runs tsc, then vite build).
+# ABOUTME: CI workflow that tests, typechecks, and builds the site on PRs to main.
+# ABOUTME: Runs npm ci, npm test (Vitest), and npm run build (which runs tsc, then vite build).
 
 name: CI
 
@@ -21,5 +21,7 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      - run: npm test
 
       - run: npm run build
