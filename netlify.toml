@@ -1,5 +1,5 @@
 # ABOUTME: Netlify build and routing config for the Armada marketing site.
-# ABOUTME: Mirrors vercel.json — Vite MPA build, clean URLs, homepage aliases.
+# ABOUTME: Mirrors vercel.json — Vite MPA build, clean URLs, homepage aliases. The token.armada.blue alias is Netlify-only.
 
 [build]
   command = "npm run build"
@@ -31,3 +31,20 @@
   from = "/homepage5"
   to = "/homepage.html"
   status = 200
+
+# token.armada.blue is a domain alias of this site; its root serves the ARM allocation page.
+# force = true because "/" already exists (index.html) and would otherwise shadow the rewrite.
+# /assets/* and /videos/* are real files on the same site, so they serve on either host.
+[[redirects]]
+  from = "https://token.armada.blue/"
+  to = "/allocation.html"
+  status = 200
+  force = true
+
+# token.armada.blue is the allocation page's one public URL. force = true because clean URLs
+# would otherwise serve allocation.html at /allocation.
+[[redirects]]
+  from = "/allocation"
+  to = "https://token.armada.blue/"
+  status = 301
+  force = true
