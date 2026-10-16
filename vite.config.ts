@@ -50,6 +50,7 @@ export default defineConfig({
         useCases: resolve(__dirname, 'use-cases.html'),
         useCases2: resolve(__dirname, 'use-cases-2.html'),
         systemdocs: resolve(__dirname, 'systemdocs.html'),
+        allocation: resolve(__dirname, 'allocation.html'),
       },
     },
   },
