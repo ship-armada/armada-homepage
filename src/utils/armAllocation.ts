@@ -1,5 +1,5 @@
 // ABOUTME: Ethereum mainnet reads for the public ARM allocation page — RevenueLock plus the reserve distributor.
-// ABOUTME: Reads go to a public mainnet RPC unless VITE_MAINNET_RPC_URL overrides it. Beneficiaries come from lock storage.
+// ABOUTME: Reads go to a public mainnet RPC unless VITE_MAINNET_RPC_URL overrides it. Ledgers list lock and reserve beneficiaries.
 
 import { Contract, FetchRequest, JsonRpcProvider, formatUnits, getAddress, keccak256, toBeHex, zeroPadValue } from 'ethers'
 
@@ -38,6 +38,9 @@ export const ARM_UNLOCK_STEPS = [
 
 const DIST_ABI = [
   'function revenueLock() view returns (address)',
+  'function beneficiaryCount() view returns (uint256)',
+  'function beneficiaries(uint256) view returns (address)',
+  'function collectedBps() view returns (uint256)',
   'function assigned(address) view returns (uint256)',
   'function claimed(address) view returns (uint256)',
   'function claimable(address) view returns (uint256)',
@@ -57,6 +60,8 @@ const LOCK_ABI = [
 /** Storage slot of RevenueLock._beneficiaries. Immutables are not in storage, so this is the third variable. */
 const BENEFICIARIES_SLOT = 2n
 const MAX_BENEFICIARIES = 500
+/** RevenueReserveDistributor.MAX_BENEFICIARIES on mainnet: 75 grantees plus the allocator. */
+const MAX_RESERVE_BENEFICIARIES = 76
 const LEDGER_CHUNK = 25
 
 interface LockReader {
@@ -73,12 +78,19 @@ interface StorageReader {
   getStorage(address: string, slot: bigint): Promise<string>
 }
 
-interface DistributorReader {
-  revenueLock(): Promise<unknown>
-  assigned(address: string): Promise<unknown>
+/** Distributor views the reserve ledger reads. */
+export interface ReserveDistributorReader {
+  beneficiaryCount(): Promise<unknown>
+  beneficiaries(index: bigint): Promise<unknown>
+  collectedBps(): Promise<unknown>
   claimed(address: string): Promise<unknown>
   claimable(address: string): Promise<unknown>
   effectiveAllocation(address: string): Promise<unknown>
+}
+
+interface DistributorReader extends ReserveDistributorReader {
+  revenueLock(): Promise<unknown>
+  assigned(address: string): Promise<unknown>
 }
 
 interface Readers {
@@ -90,12 +102,19 @@ interface Readers {
 
 export interface LedgerRow {
   address: string
-  source: 'direct'
+  /** 'direct' rows are RevenueLock beneficiaries; 'reserve' rows are grants paid by the reserve distributor. */
+  source: 'direct' | 'reserve'
   total: number
   unlocked: number
   claimed: number
   available: number
   locked: number
+}
+
+export interface ReserveLedger {
+  rows: LedgerRow[]
+  /** The lock has unlocked more reserve ARM than the distributor has collected, so grants cannot claim it yet. */
+  awaitingCollection: boolean
 }
 
 export interface UnlockSnapshot {
@@ -225,6 +244,26 @@ export function directLedgerRow(
   }
 }
 
+/** `available` is what the distributor can pay now, which lags `unlocked` until it collects from the lock. */
+export function reserveLedgerRow(
+  address: string,
+  effective: bigint,
+  claimed: bigint,
+  claimable: bigint,
+  unlockBps: bigint,
+): LedgerRow {
+  const unlocked = mulBps(effective, unlockBps)
+  return {
+    address,
+    source: 'reserve',
+    total: toArm(effective),
+    unlocked: toArm(unlocked),
+    claimed: toArm(claimed),
+    available: toArm(claimable),
+    locked: toArm(max0(effective - unlocked)),
+  }
+}
+
 export function summarizeAllocation(parts: AllocationParts): AllocationRead {
   const hasDirect = parts.directAlloc > 0n
   const hasReserve = parts.resEffective > 0n || parts.resAssigned > 0n
@@ -311,6 +350,54 @@ export async function readDirectLedger(): Promise<LedgerRow[]> {
     rows.push(...part)
   }
   return rows
+}
+
+/** Reserve grants from the distributor's beneficiary list, in list order. The allocator is always index 0. */
+export async function collectReserveLedger(
+  distributor: ReserveDistributorReader,
+  lock: { unlockPercentage(): Promise<unknown> },
+): Promise<ReserveLedger> {
+  const [countRaw, bpsRaw, collectedRaw] = await Promise.all([
+    distributor.beneficiaryCount(),
+    lock.unlockPercentage(),
+    distributor.collectedBps(),
+  ])
+  const count = Number(asBigint(countRaw, 'reserve beneficiary count'))
+  if (!Number.isSafeInteger(count) || count < 0 || count > MAX_RESERVE_BENEFICIARIES) {
+    throw new Error('Unexpected reserve beneficiary count from Ethereum')
+  }
+  const unlockBps = asBigint(bpsRaw, 'unlock percentage')
+  const awaitingCollection = asBigint(collectedRaw, 'collected bps') < unlockBps
+  const addresses = await Promise.all(
+    Array.from({ length: count }, async (_, index) => asAddress(await distributor.beneficiaries(BigInt(index)))),
+  )
+  const rows: LedgerRow[] = []
+  for (let start = 0; start < addresses.length; start += LEDGER_CHUNK) {
+    const chunk = addresses.slice(start, start + LEDGER_CHUNK)
+    const part = await Promise.all(
+      chunk.map(async (address) => {
+        const [effective, claimed, claimable] = await Promise.all([
+          distributor.effectiveAllocation(address),
+          distributor.claimed(address),
+          distributor.claimable(address),
+        ])
+        return reserveLedgerRow(
+          address,
+          asBigint(effective, 'effective allocation'),
+          asBigint(claimed, 'claimed'),
+          asBigint(claimable, 'claimable'),
+          unlockBps,
+        )
+      }),
+    )
+    rows.push(...part.filter((row) => row.total > 0))
+  }
+  return { rows, awaitingCollection }
+}
+
+export async function readReserveLedger(): Promise<ReserveLedger> {
+  const { lock, distributor } = await readers()
+  return collectReserveLedger(distributor, lock)
 }
 
 export async function readUnlockSnapshot(): Promise<UnlockSnapshot> {

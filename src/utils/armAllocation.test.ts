@@ -1,15 +1,18 @@
-// ABOUTME: Pure tests for ARM allocation math — milestone position and direct/reserve totals.
-// ABOUTME: Contract reads stay out of this file; they need Ethereum.
+// ABOUTME: Tests for ARM allocation math — milestone position, direct/reserve totals, and the reserve ledger.
+// ABOUTME: Contract reads use in-memory fakes here; nothing in this file talks to Ethereum.
 
 import { describe, expect, it } from 'vitest'
 import {
+  collectReserveLedger,
   decodeStorageAddress,
   directLedgerRow,
   formatUsd,
   mainnetProvider,
   mainnetRpcUrl,
+  reserveLedgerRow,
   schedulePosition,
   summarizeAllocation,
+  type ReserveDistributorReader,
 } from './armAllocation'
 
 const ether = (arm: number) => BigInt(arm) * 10n ** 18n
@@ -116,5 +119,84 @@ describe('summarizeAllocation', () => {
       claimed: 1_500,
       locked: 54_000,
     })
+  })
+})
+
+describe('reserveLedgerRow', () => {
+  it('unlocks a reserve grant by the current bps and reports what the distributor can pay now', () => {
+    expect(
+      reserveLedgerRow('0x2222222222222222222222222222222222222222', ether(20_000), ether(500), ether(1_500), 1_000n),
+    ).toMatchObject({
+      source: 'reserve',
+      total: 20_000,
+      unlocked: 2_000,
+      claimed: 500,
+      available: 1_500,
+      locked: 18_000,
+    })
+  })
+})
+
+const ALLOCATOR = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+const GRANTEE_A = '0x1111111111111111111111111111111111111111'
+const GRANTEE_B = '0x2222222222222222222222222222222222222222'
+
+interface FakeGrant {
+  address: string
+  effective: bigint
+  claimed: bigint
+  claimable: bigint
+}
+
+function fakeDistributor(grants: FakeGrant[], options: { collectedBps?: bigint; count?: unknown } = {}) {
+  const byAddress = new Map(grants.map((grant) => [grant.address.toLowerCase(), grant]))
+  const grant = (address: string) => {
+    const found = byAddress.get(address.toLowerCase())
+    if (!found) throw new Error(`unexpected address ${address}`)
+    return found
+  }
+  const reader: ReserveDistributorReader = {
+    beneficiaryCount: async () => options.count ?? BigInt(grants.length),
+    beneficiaries: async (index: bigint) => grants[Number(index)]?.address,
+    collectedBps: async () => options.collectedBps ?? 0n,
+    effectiveAllocation: async (address: string) => grant(address).effective,
+    claimed: async (address: string) => grant(address).claimed,
+    claimable: async (address: string) => grant(address).claimable,
+  }
+  return reader
+}
+
+const lockAt = (bps: bigint) => ({ unlockPercentage: async () => bps })
+
+describe('collectReserveLedger', () => {
+  it('lists reserve grants in distributor order and drops recipients with nothing allocated', async () => {
+    const distributor = fakeDistributor([
+      { address: ALLOCATOR, effective: 0n, claimed: 0n, claimable: 0n },
+      { address: GRANTEE_A, effective: ether(20_000), claimed: 0n, claimable: ether(2_000) },
+      { address: GRANTEE_B, effective: ether(10_000), claimed: ether(1_000), claimable: 0n },
+    ])
+    const ledger = await collectReserveLedger(distributor, lockAt(1_000n))
+    expect(ledger.rows.map((row) => row.address)).toEqual([GRANTEE_A, GRANTEE_B])
+    expect(ledger.rows[0]).toMatchObject({ source: 'reserve', total: 20_000, unlocked: 2_000, available: 2_000 })
+  })
+
+  it('flags unlocked reserve ARM the distributor has not collected yet', async () => {
+    const grants = [{ address: GRANTEE_A, effective: ether(20_000), claimed: 0n, claimable: 0n }]
+    const behind = await collectReserveLedger(fakeDistributor(grants, { collectedBps: 0n }), lockAt(1_000n))
+    const caughtUp = await collectReserveLedger(fakeDistributor(grants, { collectedBps: 1_000n }), lockAt(1_000n))
+    expect(behind.awaitingCollection).toBe(true)
+    expect(caughtUp.awaitingCollection).toBe(false)
+  })
+
+  it('rejects a beneficiary count above the distributor cap', async () => {
+    await expect(collectReserveLedger(fakeDistributor([], { count: 77n }), lockAt(0n))).rejects.toThrow(
+      'Unexpected reserve beneficiary count from Ethereum',
+    )
+  })
+
+  it('rejects a balance that is not a uint256', async () => {
+    const distributor = fakeDistributor([{ address: GRANTEE_A, effective: ether(1), claimed: 0n, claimable: 0n }])
+    distributor.claimed = async () => '12'
+    await expect(collectReserveLedger(distributor, lockAt(0n))).rejects.toThrow('Unexpected claimed from Ethereum')
   })
 })
