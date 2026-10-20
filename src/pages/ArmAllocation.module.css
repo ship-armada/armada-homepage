@@ -1440,6 +1440,15 @@
   white-space: normal;
 }
 
+.ledger .sourceCell {
+  text-align: left;
+}
+
+.page .rowLabel {
+  display: block;
+  color: var(--semantic-color-text-secondary);
+}
+
 .ledger thead th {
   position: sticky;
   top: 0;

@@ -9,12 +9,14 @@ import { RollingBalanceValue } from '@/components/RollingBalanceValue'
 import { Text } from '@/components/Text'
 import { isEvmAddress, truncateAddress } from '@/utils/address'
 import {
+  ARM_DISTRIBUTOR,
   ARM_DISTRIBUTOR_URL,
   ARM_UNLOCK_STEPS,
   formatArm,
   formatUsd,
   readAllocation,
   readDirectLedger,
+  readReserveLedger,
   readUnlockSnapshot,
   type FoundAllocation,
   type LedgerRow,
@@ -29,6 +31,7 @@ const DRONE_VIDEO = '/videos/drone-360.mp4'
 const COIN_VIDEO = '/videos/coin-spin.mp4'
 const FADE_MS = 220
 const REVENUE_LOCKED_ARM = 2_400_000
+const LEDGER_COLUMNS = 7
 
 type Phase = 'form' | 'loading' | 'result'
 
@@ -146,7 +149,9 @@ export function ArmAllocation() {
   const [showCoin, setShowCoin] = useState(false)
   const [snapshot, setSnapshot] = useState<UnlockSnapshot | null>(null)
   const [ledgerQuery, setLedgerQuery] = useState('')
-  const [ledger, setLedger] = useState<LedgerState>({ status: 'loading' })
+  const [directLedger, setDirectLedger] = useState<LedgerState>({ status: 'loading' })
+  const [reserveLedger, setReserveLedger] = useState<LedgerState>({ status: 'loading' })
+  const [awaitingCollection, setAwaitingCollection] = useState(false)
 
   useEffect(() => {
     const previous = document.title
@@ -165,10 +170,26 @@ export function ArmAllocation() {
     let cancelled = false
     readDirectLedger()
       .then((rows) => {
-        if (!cancelled) setLedger({ status: 'ready', rows })
+        if (!cancelled) setDirectLedger({ status: 'ready', rows })
       })
       .catch(() => {
-        if (!cancelled) setLedger({ status: 'error' })
+        if (!cancelled) setDirectLedger({ status: 'error' })
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    readReserveLedger()
+      .then((next) => {
+        if (cancelled) return
+        setReserveLedger({ status: 'ready', rows: next.rows })
+        setAwaitingCollection(next.awaitingCollection)
+      })
+      .catch(() => {
+        if (!cancelled) setReserveLedger({ status: 'error' })
       })
     return () => {
       cancelled = true
@@ -548,7 +569,7 @@ export function ArmAllocation() {
               More detail
             </Text>
             <div className={styles.detailStack}>
-            <Disclosure summary="Direct allocations">
+            <Disclosure summary="Allocations">
               <div className={styles.ledgerTools}>
                 <div className={styles.searchField}>
                   <label className={styles.fieldLabel} htmlFor="ledger-search">
@@ -563,12 +584,15 @@ export function ArmAllocation() {
                   />
                 </div>
               </div>
-              <div className={`${styles.tableScroll} ${styles.ledgerScroll}`} tabIndex={0} aria-label="Direct allocations">
+              <div className={`${styles.tableScroll} ${styles.ledgerScroll}`} tabIndex={0} aria-label="Allocations">
                 <table className={styles.ledger}>
-                  <caption className={styles.srOnly}>Direct allocations</caption>
+                  <caption className={styles.srOnly}>Allocations</caption>
                   <thead>
                     <tr>
                       <th scope="col">Recipient</th>
+                      <th scope="col" className={styles.sourceCell}>
+                        Source
+                      </th>
                       <th scope="col">Allocation</th>
                       <th scope="col">Unlocked</th>
                       <th scope="col">Claimed</th>
@@ -577,10 +601,15 @@ export function ArmAllocation() {
                     </tr>
                   </thead>
                   <tbody>
-                    <LedgerBody query={ledgerQuery} ledger={ledger} />
+                    <LedgerBody query={ledgerQuery} direct={directLedger} reserve={reserveLedger} />
                   </tbody>
                 </table>
               </div>
+              {awaitingCollection ? (
+                <Text as="p" variant="ui-body-sm" className={styles.footnote}>
+                  Unlocked reserve ARM becomes claimable once it’s collected from the RevenueLock.
+                </Text>
+              ) : null}
             </Disclosure>
 
             <Disclosure summary="Revenue and claim history">
@@ -1033,54 +1062,90 @@ function SplitLabel({
   )
 }
 
+function isReserveDistributor(row: LedgerRow): boolean {
+  return row.source === 'direct' && row.address.toLowerCase() === ARM_DISTRIBUTOR.toLowerCase()
+}
+
+/** Direct allocations and reserve grants in one list; each source loads and fails on its own. */
 function LedgerBody({
   query,
-  ledger,
+  direct,
+  reserve,
 }: {
   query: string
-  ledger: LedgerState
+  direct: LedgerState
+  reserve: LedgerState
 }) {
-  if (ledger.status === 'loading') {
-    return (
-      <tr>
-        <td colSpan={6} className={styles.emptyCell} role="status">
-          Loading allocations from Ethereum.
+  const parts = [
+    { name: 'direct allocations', ledger: direct },
+    { name: 'reserve grants', ledger: reserve },
+  ]
+  const notices = parts.flatMap(({ name, ledger }) => {
+    if (ledger.status === 'loading') {
+      return [
+        <tr key={name}>
+          <td colSpan={LEDGER_COLUMNS} className={styles.emptyCell} role="status">
+            Loading {name} from Ethereum.
+          </td>
+        </tr>,
+      ]
+    }
+    if (ledger.status === 'error') {
+      return [
+        <tr key={name}>
+          <td colSpan={LEDGER_COLUMNS} className={styles.emptyCell} role="alert">
+            Could not load {name} from Ethereum.
+          </td>
+        </tr>,
+      ]
+    }
+    return []
+  })
+  const reserveEmpty =
+    reserve.status === 'ready' && reserve.rows.length === 0 ? (
+      <tr key="reserve-empty">
+        <td colSpan={LEDGER_COLUMNS} className={styles.emptyCell}>
+          No reserve grants assigned yet.
         </td>
       </tr>
-    )
-  }
-  if (ledger.status === 'error') {
-    return (
-      <tr>
-        <td colSpan={6} className={styles.emptyCell} role="alert">
-          Could not load the public list from Ethereum.
-        </td>
-      </tr>
-    )
-  }
+    ) : null
+  const loaded = parts.flatMap(({ ledger }) => (ledger.status === 'ready' ? ledger.rows : []))
   const needle = query.trim().toLowerCase()
-  const rows = needle === '' ? ledger.rows : ledger.rows.filter((row) => row.address.toLowerCase().includes(needle))
-  if (rows.length === 0) {
+  const rows = needle === '' ? loaded : loaded.filter((row) => row.address.toLowerCase().includes(needle))
+  if (rows.length === 0 && notices.length === 0) {
     return (
       <tr>
-        <td colSpan={6} className={styles.emptyCell}>
-          {ledger.rows.length === 0 ? 'No direct allocations are on the lock.' : 'No allocation matches that address.'}
+        <td colSpan={LEDGER_COLUMNS} className={styles.emptyCell}>
+          {loaded.length === 0 ? 'No allocations are on the lock or the reserve.' : 'No allocation matches that address.'}
         </td>
       </tr>
     )
   }
-  return rows.map((row) => (
-    <tr key={row.address}>
-      <th scope="row" className={styles.addressLine}>
-        {row.address}
-      </th>
-      <td>{formatArm(row.total)}</td>
-      <td>{formatArm(row.unlocked)}</td>
-      <td>{formatArm(row.claimed)}</td>
-      <td>{formatArm(row.available)}</td>
-      <td>{formatArm(row.locked)}</td>
-    </tr>
-  ))
+  return (
+    <>
+      {rows.map((row) => (
+        <tr key={`${row.source}-${row.address}`}>
+          <th scope="row" className={styles.addressLine}>
+            {row.address}
+            {isReserveDistributor(row) ? (
+              <>
+                {' '}
+                <span className={styles.rowLabel}>Reserve distributor (pooled)</span>
+              </>
+            ) : null}
+          </th>
+          <td className={styles.sourceCell}>{row.source === 'direct' ? 'Direct' : 'Reserve'}</td>
+          <td>{formatArm(row.total)}</td>
+          <td>{formatArm(row.unlocked)}</td>
+          <td>{formatArm(row.claimed)}</td>
+          <td>{formatArm(row.available)}</td>
+          <td>{formatArm(row.locked)}</td>
+        </tr>
+      ))}
+      {reserveEmpty}
+      {notices}
+    </>
+  )
 }
 
 function Disclosure({ summary, children }: { summary: string; children: ReactNode }) {
