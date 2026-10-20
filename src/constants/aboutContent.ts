@@ -142,7 +142,7 @@ export const BUILD_WITH_ARMADA = {
     },
     {
       label: 'Join Discord',
-      href: 'https://discord.com/invite/ship-armada',
+      href: 'https://armada.blue/discord',
       external: true,
       variant: 'secondary',
     },
