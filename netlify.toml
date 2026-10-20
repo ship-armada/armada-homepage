@@ -48,3 +48,11 @@
   to = "https://token.armada.blue/"
   status = 301
   force = true
+
+# /discord is the one Discord link the site and posts use, so a new invite only changes this rule.
+# 302 rather than 301 so browsers don't cache the invite and miss a later change.
+[[redirects]]
+  from = "/discord"
+  to = "https://discord.gg/fjWquSpFjb"
+  status = 302
+  force = true
