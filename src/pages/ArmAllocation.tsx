@@ -751,10 +751,10 @@ function FoundResult({
           <Text as="h2" variant="ui-heading-sm" className={styles.srOnly}>
             Allocation found
           </Text>
-          {/* TODO: cohort is not on the lock read. Launch team is the label until airdrop and contributor wallets can be told apart. */}
+          {/* Cohort is not on the lock read, so the label names only what every looked-up allocation is. */}
           <p className={styles.cohort} data-cascade="" style={cascadeIndex(1)}>
-            <span className={`${styles.swatch} ${styles.team}`} aria-hidden="true" />
-            Launch team allocation
+            <span className={`${styles.swatch} ${styles.rev}`} aria-hidden="true" />
+            Revenue-locked allocation
           </p>
           <p className={styles.amount} data-cascade="" style={cascadeIndex(2)}>
             <RollingBalanceValue
